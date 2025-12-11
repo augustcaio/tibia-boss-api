@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: tibia-boss-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=tibia_bosses
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+    driver: local

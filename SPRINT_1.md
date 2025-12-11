@@ -10,7 +10,7 @@
 | -------------- | ----------------- |
 | **Prioridade** | 🔴 Alta (Blocker) |
 | **Estimativa** | 2 Story Points    |
-| **Status**     | 🟡 Em Progresso   |
+| **Status**     | ✅ Concluída      |
 
 ### Descrição
 
@@ -18,17 +18,17 @@ Inicializar o repositório seguindo a Arquitetura em Camadas definida. Configura
 
 ### Detalhes Técnicos
 
-- [ ] Inicializar Poetry (`pyproject.toml`) com Python 3.11+
-- [ ] Dependências iniciais: `fastapi`, `uvicorn`, `motor`, `odmantic` (ou Pydantic v2 direto), `httpx`, `mwparserfromhell`
-- [ ] Dev dependencies: `pytest`, `black`, `isort`, `pre-commit`
+- [x] Inicializar Poetry (`pyproject.toml`) com Python 3.11+
+- [x] Dependências iniciais: `fastapi`, `uvicorn`, `motor`, `odmantic` (ou Pydantic v2 direto), `httpx`, `mwparserfromhell`
+- [x] Dev dependencies: `pytest`, `black`, `isort`, `pre-commit`
 - [x] Criar estrutura de pastas: `app/core`, `app/services`, `app/models`, `app/utils`
-- [ ] Criar `docker-compose.yml` apenas com o serviço do MongoDB (imagem `mongo:latest`) expondo a porta 27017
+- [x] Criar `docker-compose.yml` apenas com o serviço do MongoDB (imagem `mongo:latest`) expondo a porta 27017
 
 ### Definition of Done (DoD)
 
-- [ ] `poetry install` roda sem erros
-- [ ] `docker-compose up -d` sobe o MongoDB e é possível conectar via Compass/Robo3T
-- [ ] Pre-commit hook configurado (formatação automática)
+- [x] `poetry install` roda sem erros
+- [x] `docker-compose up -d` sobe o MongoDB e é possível conectar via Compass/Robo3T
+- [x] Pre-commit hook configurado (formatação automática)
 - [x] Estrutura de pastas commitada no Git
 
 ---
@@ -145,7 +145,7 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 
 | Task      | Título               | Story Points | Prioridade | Status          |
 | --------- | -------------------- | ------------ | ---------- | --------------- |
-| 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | 🟡 Em Progresso |
+| 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | ✅ Concluída    |
 | 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ⬜ Pendente     |
 | 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ⬜ Pendente     |
 | 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ⬜ Pendente     |
@@ -163,9 +163,19 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 - Commit inicial: `c172cbb` - estrutura de pastas + .gitignore
 - `.gitignore` configurado para Python/Poetry/MongoDB
 
+### ✅ Task 1.1 Concluída (Setup do Projeto)
+
+- `pyproject.toml` criado com Poetry (Python >=3.11)
+- Dependências instaladas: fastapi, uvicorn, motor, pydantic, httpx, mwparserfromhell
+- Dev dependencies: pytest, black, isort, pre-commit
+- `docker-compose.yml` com MongoDB funcionando na porta 27017
+- Pre-commit hooks configurados e funcionando (black, isort)
+- Feature branch: `feature/task-1.1-setup` → merged em `develop`
+- Commit: `6c2d626`
+
 ### 🔜 Próximo Passo
 
-- Completar Task 1.1: Criar `pyproject.toml` e `docker-compose.yml`
+- Iniciar Task 1.2: TibiaWiki Client Wrapper (Async)
 
 ---
 

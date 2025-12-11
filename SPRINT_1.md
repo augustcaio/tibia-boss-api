@@ -143,13 +143,13 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 
 ## 📊 Resumo da Sprint
 
-| Task      | Título               | Story Points | Prioridade | Status          |
-| --------- | -------------------- | ------------ | ---------- | --------------- |
-| 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | ✅ Concluída    |
-| 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ⬜ Pendente     |
-| 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ⬜ Pendente     |
-| 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ⬜ Pendente     |
-| **Total** |                      | **18 SP**    |            |                 |
+| Task      | Título               | Story Points | Prioridade | Status       |
+| --------- | -------------------- | ------------ | ---------- | ------------ |
+| 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | ✅ Concluída |
+| 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ⬜ Pendente  |
+| 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ⬜ Pendente  |
+| 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ⬜ Pendente  |
+| **Total** |                      | **18 SP**    |            |              |
 
 ---
 

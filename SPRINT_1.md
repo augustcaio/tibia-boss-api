@@ -66,7 +66,7 @@ Criar uma classe cliente responsável por toda comunicação HTTP com a API do T
 | -------------- | ----------------------------- |
 | **Prioridade** | 🔴 Alta (Complexidade Lógica) |
 | **Estimativa** | 8 Story Points                |
-| **Status**     | ⬜ Pendente                   |
+| **Status**     | ✅ Concluída                  |
 
 ### Descrição
 
@@ -74,28 +74,28 @@ Transformar o "caos" do Wikitext em objetos Python estruturados e tipados. **Ess
 
 ### Detalhes Técnicos
 
-- [ ] Lib: `mwparserfromhell`
-- [ ] Criar modelos Pydantic (`app/models/boss.py`) para validação
-- [ ] **Campos:** `name`, `hp` (int), `exp` (int), `walks_through` (list[str]), `immunities` (list[str])
+- [x] Lib: `mwparserfromhell`
+- [x] Criar modelos Pydantic (`app/models/boss.py`) para validação
+- [x] **Campos:** `name`, `hp` (int), `exp` (int), `walks_through` (list[str]), `immunities` (list[str])
 
 #### Lógica de Parsing
 
-- [ ] Extrair template `{{Infobox Boss}}`
-- [ ] Mapear campos do wiki (`hp`, `exp`) para o modelo
+- [x] Extrair template `{{Infobox Boss}}`
+- [x] Mapear campos do wiki (`hp`, `exp`) para o modelo
 
 #### Sanitização
 
 Criar validadores (`@field_validator`) para limpar sujeira:
 
-- [ ] Ex: `"50,000 (estimated)"` → `50000`
-- [ ] Ex: `"Fire, Energy (partial)"` → `["Fire", "Energy"]`
-- [ ] Ex: `"???"` ou `"Variable"` → `None`
+- [x] Ex: `"50,000 (estimated)"` → `50000`
+- [x] Ex: `"Fire, Energy (partial)"` → `["Fire", "Energy"]`
+- [x] Ex: `"???"` ou `"Variable"` → `None`
 
 ### Definition of Done (DoD)
 
-- [ ] O Parser aceita uma string wikitext e retorna uma instância `BossModel`
-- [ ] 100% de cobertura de testes com edge cases (Boss sem HP, Boss com formatação quebrada, Bosses novos vs antigos)
-- [ ] Tratamento de erro: Se não achar o template `Infobox Boss`, deve lançar `ParserError`
+- [x] O Parser aceita uma string wikitext e retorna uma instância `BossModel`
+- [x] 100% de cobertura de testes com edge cases (Boss sem HP, Boss com formatação quebrada, Bosses novos vs antigos)
+- [x] Tratamento de erro: Se não achar o template `Infobox Boss`, deve lançar `ParserError`
 
 ---
 
@@ -147,7 +147,7 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 | --------- | -------------------- | ------------ | ---------- | ------------ |
 | 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | ✅ Concluída |
 | 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ✅ Concluída |
-| 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ⬜ Pendente  |
+| 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ✅ Concluída |
 | 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ⬜ Pendente  |
 | **Total** |                      | **18 SP**    |            |              |
 
@@ -184,9 +184,29 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 - Testes unitários completos em `tests/test_tibiawiki_client.py` (mockando httpx)
 - Script de teste manual criado em `scripts/test_tibiawiki_client.py`
 
+### ✅ Task 1.3 Concluída (Parser de Wikitext e Sanitização)
+
+- Modelo `BossModel` criado em `app/models/boss.py` com Pydantic v2 (ConfigDict)
+- Campos implementados: `name`, `hp`, `exp`, `walks_through`, `immunities`
+- Validadores de sanitização implementados para todos os campos:
+  - HP/EXP: remove vírgulas, parênteses, trata valores desconhecidos
+  - Lists: separa por vírgula, remove parênteses, trata valores vazios
+- Parser `WikitextParser` criado em `app/services/wikitext_parser.py`
+- Extração do template `Infobox Boss` com suporte case-insensitive
+- Mapeamento de campos do wiki para o modelo (suporta nomes alternativos)
+- Exceção `ParserError` implementada para tratamento de erros
+- 27 testes unitários criados cobrindo todos os edge cases:
+  - Boss sem HP/EXP
+  - Formatação quebrada
+  - Formatos antigos vs novos
+  - Valores desconhecidos (???, Variable)
+  - Listas com parênteses parciais
+  - Template não encontrado
+- Todos os testes passando (27/27)
+
 ### 🔜 Próximo Passo
 
-- Iniciar Task 1.3: Parser de Wikitext e Sanitização (Pydantic)
+- Iniciar Task 1.4: Orchestrator Script (Runner)
 
 ---
 

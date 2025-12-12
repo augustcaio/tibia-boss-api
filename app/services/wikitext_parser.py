@@ -20,6 +20,7 @@ class WikitextParser:
     """Parser para extrair dados estruturados de wikitext do TibiaWiki."""
 
     INFOBOX_BOSS_TEMPLATE = "Infobox Boss"
+    INFOBOX_CREATURE_TEMPLATE = "Infobox Creature"
 
     @classmethod
     def parse(cls, wikitext: str, boss_name: Optional[str] = None) -> BossModel:
@@ -43,12 +44,12 @@ class WikitextParser:
             # Parse do wikitext usando mwparserfromhell
             wikicode = mwparserfromhell.parse(wikitext)
 
-            # Busca pelo template Infobox Boss
+            # Busca pelo template Infobox Boss ou Infobox Creature
             infobox = cls._find_infobox_boss(wikicode)
 
             if not infobox:
                 raise ParserError(
-                    f"Template '{cls.INFOBOX_BOSS_TEMPLATE}' não encontrado no wikitext"
+                    f"Template '{cls.INFOBOX_BOSS_TEMPLATE}' ou '{cls.INFOBOX_CREATURE_TEMPLATE}' não encontrado no wikitext"
                 )
 
             # Extrai os dados do template
@@ -79,14 +80,34 @@ class WikitextParser:
 
         for template in templates:
             # Normaliza o nome do template (remove espaços, case insensitive)
-            template_name = str(template.name).strip()
+            template_name = str(template.name).strip().lower()
 
             # Verifica se é o template Infobox Boss
-            if template_name.lower() == cls.INFOBOX_BOSS_TEMPLATE.lower():
+            if template_name == cls.INFOBOX_BOSS_TEMPLATE.lower():
                 return template
 
+            # Verifica se é o template Infobox Creature (usado para bosses também)
+            if template_name == cls.INFOBOX_CREATURE_TEMPLATE.lower():
+                # Verifica se é um boss (tem campo isboss = yes)
+                for param in template.params:
+                    param_name = str(param.name).strip().lower() if param.name else ""
+                    if param_name == "isboss":
+                        param_value = str(param.value).strip().lower()
+                        if param_value == "yes":
+                            return template
+                # Se não tem isboss, ainda pode ser um boss se tiver campos de boss
+                # Aceita de qualquer forma se tiver campos hp/exp
+                has_hp_or_exp = False
+                for param in template.params:
+                    param_name = str(param.name).strip().lower() if param.name else ""
+                    if param_name in ("hp", "exp", "hitpoints", "experience", "xp"):
+                        has_hp_or_exp = True
+                        break
+                if has_hp_or_exp:
+                    return template
+
             # Também verifica variações comuns
-            if "infobox" in template_name.lower() and "boss" in template_name.lower():
+            if "infobox" in template_name and "boss" in template_name:
                 return template
 
         return None

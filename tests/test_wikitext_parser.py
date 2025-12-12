@@ -96,7 +96,7 @@ def test_parse_boss_without_infobox():
     Este é um texto qualquer sem template.
     """
 
-    with pytest.raises(ParserError, match="Template 'Infobox Boss' não encontrado"):
+    with pytest.raises(ParserError, match="Template 'Infobox Boss' ou 'Infobox Creature' não encontrado"):
         WikitextParser.parse(wikitext, "Test Boss")
 
 
@@ -229,4 +229,39 @@ def test_parse_boss_minimal():
     assert boss.exp is None
     assert boss.walks_through == []
     assert boss.immunities == []
+
+
+def test_parse_boss_with_infobox_creature():
+    """Testa parsing de boss com template Infobox Creature."""
+    wikitext = """
+    {{Infobox Creature
+    |name = Creature Boss
+    |hp = 50000
+    |exp = 10000
+    |isboss = yes
+    }}
+    """
+
+    boss = WikitextParser.parse(wikitext, "Creature Boss")
+
+    assert boss.name == "Creature Boss"
+    assert boss.hp == 50000
+    assert boss.exp == 10000
+
+
+def test_parse_boss_with_infobox_creature_no_isboss():
+    """Testa parsing de boss com Infobox Creature sem campo isboss mas com hp/exp."""
+    wikitext = """
+    {{Infobox Creature
+    |name = Creature Boss 2
+    |hp = 30000
+    |exp = 5000
+    }}
+    """
+
+    boss = WikitextParser.parse(wikitext, "Creature Boss 2")
+
+    assert boss.name == "Creature Boss 2"
+    assert boss.hp == 30000
+    assert boss.exp == 5000
 

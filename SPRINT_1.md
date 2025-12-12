@@ -105,7 +105,7 @@ Criar validadores (`@field_validator`) para limpar sujeira:
 | -------------- | -------------- |
 | **Prioridade** | 🟡 Média       |
 | **Estimativa** | 3 Story Points |
-| **Status**     | ⬜ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -113,9 +113,9 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 
 ### Detalhes Técnicos
 
-- [ ] Arquivo: `app/main_scraper.py` (temporário, depois vira um Job)
-- [ ] Usar `asyncio.gather` para concorrência
-- [ ] **Obrigatório:** Implementar `asyncio.Semaphore(10)` para limitar a 10 requests simultâneos e evitar bloqueio de IP
+- [x] Arquivo: `app/main_scraper.py` (temporário, depois vira um Job)
+- [x] Usar `asyncio.gather` para concorrência
+- [x] **Obrigatório:** Implementar `asyncio.Semaphore(10)` para limitar a 10 requests simultâneos e evitar bloqueio de IP
 
 #### Fluxo
 
@@ -125,9 +125,9 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 
 ### Definition of Done (DoD)
 
-- [ ] O script roda do início ao fim sem "crashar" em menos de 2 minutos
-- [ ] Gera um JSON local contendo dados estruturados de pelo menos 90% dos bosses listados
-- [ ] Logs informativos (`INFO: Processed Ghazbaran`, `ERROR: Failed parsing Rat`)
+- [x] O script roda do início ao fim sem "crashar" em menos de 2 minutos
+- [x] Gera um JSON local contendo dados estruturados de pelo menos 90% dos bosses listados
+- [x] Logs informativos (`INFO: Processed Ghazbaran`, `ERROR: Failed parsing Rat`)
 
 ---
 
@@ -148,7 +148,7 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 | 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | ✅ Concluída |
 | 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ✅ Concluída |
 | 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ✅ Concluída |
-| 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ⬜ Pendente  |
+| 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ✅ Concluída |
 | **Total** |                      | **18 SP**    |            |              |
 
 ---
@@ -204,9 +204,31 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
   - Template não encontrado
 - Todos os testes passando (27/27)
 
-### 🔜 Próximo Passo
+### ✅ Task 1.4 Concluída (Orchestrator Script)
 
-- Iniciar Task 1.4: Orchestrator Script (Runner)
+- Script `main_scraper.py` criado em `app/main_scraper.py`
+- Integração completa entre `TibiaWikiClient` e `WikitextParser`
+- Processamento assíncrono com `asyncio.gather` para concorrência
+- `asyncio.Semaphore(10)` implementado para limitar requisições simultâneas
+- Parser ajustado para aceitar templates `Infobox Boss` e `Infobox Creature`
+- Salvamento automático em `data/bosses_dump.json`
+- Logs informativos implementados (INFO/ERROR)
+- Resultados de validação:
+  - ✅ Processou 541 de 546 bosses (99.1% de sucesso)
+  - ✅ Superou o requisito de 90% do DoD
+  - ✅ Execução completa em menos de 2 minutos
+  - ✅ JSON gerado com sucesso
+
+### 🎉 Sprint 1 Completa!
+
+Todas as tasks da Sprint 1 foram concluídas com sucesso:
+
+- ✅ Task 1.1: Setup do Projeto
+- ✅ Task 1.2: TibiaWiki Client Wrapper
+- ✅ Task 1.3: Parser de Wikitext e Sanitização
+- ✅ Task 1.4: Orchestrator Script
+
+**Total:** 18 Story Points concluídos
 
 ---
 

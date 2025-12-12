@@ -106,7 +106,7 @@ Conectar as pontas. Atualizar o script "Runner" da Sprint 1 para incluir o passo
 | -------------- | -------------- |
 | **Prioridade** | 🟡 Média       |
 | **Estimativa** | 3 Story Points |
-| **Status**     | ⬜ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -114,20 +114,20 @@ Melhorar a observabilidade. Quando um Parser falhar (porque o Wiki mudou o templ
 
 ### Detalhes Técnicos
 
-- [ ] Criar um logger estruturado (pode ser arquivo JSON `logs/parsing_errors.jsonl`)
+- [x] Criar um logger estruturado (pode ser arquivo JSON `logs/parsing_errors.jsonl`)
 
 #### Requisito do Tech Lead
 
 O log **DEVE** conter:
 
-- [ ] `timestamp`
-- [ ] `boss_name`
-- [ ] `error_message` (Traceback resumido)
-- [ ] `raw_data_snippet`: Os primeiros 500 caracteres do wikitext que causou o erro. Isso é vital para debugarmos depois
+- [x] `timestamp`
+- [x] `boss_name`
+- [x] `error_message` (Traceback resumido)
+- [x] `raw_data_snippet`: Os primeiros 500 caracteres do wikitext que causou o erro. Isso é vital para debugarmos depois
 
 ### Definition of Done (DoD)
 
-- [ ] Provocar um erro proposital no parser e verificar se o arquivo de log foi gerado com o snippet do wikitext
+- [x] Provocar um erro proposital no parser e verificar se o arquivo de log foi gerado com o snippet do wikitext
 
 ---
 
@@ -148,7 +148,7 @@ O log **DEVE** conter:
 | 2.1       | Image Resolver Service | 5 SP         | 🔴 Alta    | ✅ Concluída |
 | 2.2       | Repositório MongoDB    | 3 SP         | 🔴 Alta    | ✅ Concluída |
 | 2.3       | Pipeline Integration   | 5 SP         | 🟡 Média   | ✅ Concluída |
-| 2.4       | Sistema de Logs        | 3 SP         | 🟡 Média   | ⬜ Pendente  |
+| 2.4       | Sistema de Logs        | 3 SP         | 🟡 Média   | ✅ Concluída |
 | **Total** |                        | **16 SP**    |            |              |
 
 ---
@@ -194,9 +194,9 @@ Time, quando abrirem o PR, vou olhar especificamente para:
   - Verificação de uso de POST
 - Teste real validado com imagem do TibiaWiki
 
-## 🎯 Próximos Passos
+## 🎯 Sprint 2 Concluída! 🎉
 
-- Iniciar Task 2.4: Sistema de Logs "Dead Letter" (Error Handling)
+Todas as tasks da Sprint 2 foram finalizadas com sucesso!
 
 ---
 
@@ -261,3 +261,39 @@ Time, quando abrirem o PR, vou olhar especificamente para:
   6. Salva no MongoDB usando `upsert_batch`
 - Todos os testes do parser passando (17 testes) ✅
 - Teste manual validado: extração de imagem funcionando corretamente
+
+### ✅ Task 2.4 Concluída (Sistema de Logs "Dead Letter" - Error Handling)
+
+- Módulo `app/utils/dead_letter_logger.py` criado:
+  - Classe `DeadLetterLogger` para logging estruturado
+  - Formato JSONL (JSON Lines) para fácil processamento
+  - Criação automática do diretório `logs/` se não existir
+  - Método `log_parsing_error()` para erros de parsing
+  - Método `log_image_error()` para erros de resolução de imagem
+  - Truncamento automático de snippets para 500 caracteres
+  - Extração de traceback resumido (últimas 3 linhas)
+  - Métodos auxiliares: `get_log_count()`, `clear_logs()`
+- Integração no `app/main_scraper.py`:
+  - Captura de erros de parsing com `ParserError`
+  - Captura de exceções gerais durante processamento
+  - Logging automático com snippet do wikitext que causou o erro
+  - Processo não é interrompido por erros (apenas logados)
+- Campos obrigatórios implementados:
+  - `timestamp`: ISO 8601 com timezone UTC
+  - `boss_name`: Nome do boss que causou o erro
+  - `error_message`: Traceback resumido (últimas 3 linhas)
+  - `raw_data_snippet`: Primeiros 500 caracteres do wikitext
+- 9 testes unitários criados em `tests/test_dead_letter_logger.py`:
+  - Teste de criação de arquivo de log
+  - Teste de campos obrigatórios
+  - Teste de truncamento de snippets longos
+  - Teste de múltiplas entradas
+  - Teste com raw_data vazio
+  - Teste de erro de imagem
+  - Teste de contagem de logs
+  - Teste de limpeza de logs
+  - Teste com wikitext real (erro proposital)
+- Script de teste manual criado em `scripts/test_dead_letter_logger.py`
+- Teste DoD validado: erro proposital gerou arquivo de log com snippet do wikitext ✅
+- Todos os testes passando (9 testes) ✅
+- Warnings de depreciação corrigidos (datetime.utcnow() → datetime.now(UTC))

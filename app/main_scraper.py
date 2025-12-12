@@ -18,6 +18,7 @@ from app.models.boss import BossModel, BossVisuals
 from app.services.image_resolver import ImageResolverService
 from app.services.tibiawiki_client import TibiaWikiClient
 from app.services.wikitext_parser import ParserError, WikitextParser
+from app.utils.dead_letter_logger import dead_letter_logger
 
 # Configuração de logging
 logging.basicConfig(
@@ -53,6 +54,7 @@ async def process_boss(
     pageid = boss_info.get("pageid")
 
     async with semaphore:
+        wikitext = None
         try:
             # Busca o wikitext do boss
             wikitext = await client.get_boss_wikitext(pageid=pageid)
@@ -69,9 +71,21 @@ async def process_boss(
 
         except ParserError as e:
             logger.error(f"Failed parsing {boss_name}: {e}")
+            # Loga no dead letter logger com snippet do wikitext
+            dead_letter_logger.log_parsing_error(
+                boss_name=boss_name,
+                error=e,
+                raw_data=wikitext,
+            )
             return None
         except Exception as e:
             logger.error(f"Error processing {boss_name}: {e}")
+            # Loga no dead letter logger
+            dead_letter_logger.log_parsing_error(
+                boss_name=boss_name,
+                error=e,
+                raw_data=wikitext,
+            )
             return None
 
 

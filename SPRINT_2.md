@@ -39,7 +39,7 @@ Implementar um serviço para converter nomes de arquivos (ex: `File:Morgaroth.gi
 | -------------- | -------------- |
 | **Prioridade** | 🔴 Alta        |
 | **Estimativa** | 3 Story Points |
-| **Status**     | ⬜ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -47,24 +47,24 @@ Criar a camada de persistência (`app/db/repository.py`) e garantir a integridad
 
 ### Detalhes Técnicos
 
-- [ ] **Driver:** `motor` (Async)
-- [ ] **Schema:** Atualizar o Model Pydantic para incluir o campo `visuals` (com `gif_url` e `filename`)
+- [x] **Driver:** `motor` (Async)
+- [x] **Schema:** Atualizar o Model Pydantic para incluir o campo `visuals` (com `gif_url` e `filename`)
 
 #### Inicialização (Startup Event)
 
-- [ ] Ao iniciar a aplicação, verificar e criar os índices automaticamente
-- [ ] **Obrigatório:** `await db.bosses.create_index("slug", unique=True)`. Isso é nossa trava de segurança contra duplicidade
+- [x] Ao iniciar a aplicação, verificar e criar os índices automaticamente
+- [x] **Obrigatório:** `await db.bosses.create_index("slug", unique=True)`. Isso é nossa trava de segurança contra duplicidade
 
 #### Método Upsert
 
-- [ ] Usar `find_one_and_update` com `upsert=True`
-- [ ] Chave de busca: `slug` (versão "slugificada" do nome, ex: "Morgaroth" -> "morgaroth")
-- [ ] Operador `$set` para atualizar os campos
+- [x] Usar `find_one_and_update` com `upsert=True`
+- [x] Chave de busca: `slug` (versão "slugificada" do nome, ex: "Morgaroth" -> "morgaroth")
+- [x] Operador `$set` para atualizar os campos
 
 ### Definition of Done (DoD)
 
-- [ ] Ao subir a app, o índice aparece no MongoDB (verificar via Compass)
-- [ ] Teste de integração: Inserir o mesmo boss 2 vezes. O resultado deve ser 1 documento no banco (atualizado), e não 2 documentos ou erro de duplicidade
+- [x] Ao subir a app, o índice aparece no MongoDB (verificar via Compass)
+- [x] Teste de integração: Inserir o mesmo boss 2 vezes. O resultado deve ser 1 documento no banco (atualizado), e não 2 documentos ou erro de duplicidade
 
 ---
 
@@ -146,7 +146,7 @@ O log **DEVE** conter:
 | Task      | Título                 | Story Points | Prioridade | Status       |
 | --------- | ---------------------- | ------------ | ---------- | ------------ |
 | 2.1       | Image Resolver Service | 5 SP         | 🔴 Alta    | ✅ Concluída |
-| 2.2       | Repositório MongoDB    | 3 SP         | 🔴 Alta    | ⬜ Pendente  |
+| 2.2       | Repositório MongoDB    | 3 SP         | 🔴 Alta    | ✅ Concluída |
 | 2.3       | Pipeline Integration   | 5 SP         | 🟡 Média   | ⬜ Pendente  |
 | 2.4       | Sistema de Logs        | 3 SP         | 🟡 Média   | ⬜ Pendente  |
 | **Total** |                        | **16 SP**    |            |              |
@@ -196,4 +196,43 @@ Time, quando abrirem o PR, vou olhar especificamente para:
 
 ## 🎯 Próximos Passos
 
-- Iniciar Task 2.2: Repositório MongoDB & Schema Design
+- Iniciar Task 2.3: Pipeline Integration (The "Gluer")
+
+---
+
+## 📝 Notas e Decisões
+
+### ✅ Task 2.2 Concluída (Repositório MongoDB & Schema Design)
+
+- Modelo `BossModel` atualizado com:
+  - Campo `slug` (opcional, gerado automaticamente se não fornecido)
+  - Campo `visuals` (BossVisuals com `gif_url` e `filename`)
+  - Método `get_slug()` para gerar slug automaticamente a partir do nome
+- Módulo `app/db/connection.py` criado:
+  - Função `init_database()` para inicializar conexão MongoDB
+  - Função `_create_indexes()` que cria índices automaticamente:
+    - `slug` (unique=True) - trava de segurança contra duplicidade
+    - `name` - para buscas rápidas
+  - Função `close_database()` para fechar conexão
+- Módulo `app/db/repository.py` criado:
+  - Classe `BossRepository` com métodos:
+    - `upsert()` - insere ou atualiza boss usando slug como chave
+    - `upsert_batch()` - processa múltiplos bosses em lote
+    - `find_by_slug()` - busca por slug
+    - `find_by_name()` - busca por nome
+    - `count()` - retorna total de bosses
+- Módulo `app/main.py` criado:
+  - FastAPI app com lifespan para inicializar MongoDB na startup
+  - Endpoint `/health` para verificar status da conexão
+- Módulo `app/core/config.py` criado:
+  - Settings usando Pydantic Settings para configuração
+- 8 testes de integração criados em `tests/test_repository.py`:
+  - Teste de criação de boss
+  - Teste de idempotência (inserir 2 vezes = 1 documento)
+  - Teste de batch upsert
+  - Teste de busca por slug e nome
+  - Teste de geração de slug
+  - Teste de slug com caracteres especiais
+  - Teste de criação de índices
+- Script de teste manual criado em `scripts/test_repository.py`
+- Todos os testes passando ✅

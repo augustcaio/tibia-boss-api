@@ -6,14 +6,23 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
+class BossVisuals(BaseModel):
+    """Modelo para dados visuais do boss."""
+
+    gif_url: Optional[str] = None
+    filename: Optional[str] = None
+
+
 class BossModel(BaseModel):
     """Modelo para representar um Boss do Tibia."""
 
     name: str
+    slug: Optional[str] = None
     hp: Optional[int] = None
     exp: Optional[int] = None
     walks_through: List[str] = []
     immunities: List[str] = []
+    visuals: Optional[BossVisuals] = None
 
     @field_validator("hp", mode="before")
     @classmethod
@@ -107,6 +116,36 @@ class BossModel(BaseModel):
         Mesma lógica do sanitize_walks_through.
         """
         return cls.sanitize_walks_through(v)
+
+    def get_slug(self) -> str:
+        """
+        Retorna o slug do boss, gerando automaticamente se não fornecido.
+
+        Returns:
+            Slug do boss
+        """
+        if self.slug:
+            return self.slug
+        return self._generate_slug(self.name)
+
+    @staticmethod
+    def _generate_slug(name: str) -> str:
+        """
+        Gera um slug a partir do nome do boss.
+
+        Args:
+            name: Nome do boss
+
+        Returns:
+            Slug gerado (ex: "Morgaroth" -> "morgaroth")
+        """
+        # Remove caracteres especiais, converte para minúsculas
+        slug = re.sub(r"[^\w\s-]", "", name.lower())
+        # Remove espaços extras e substitui por hífens
+        slug = re.sub(r"[-\s]+", "-", slug)
+        # Remove hífens no início e fim
+        slug = slug.strip("-")
+        return slug
 
     model_config = ConfigDict(
         frozen=False,

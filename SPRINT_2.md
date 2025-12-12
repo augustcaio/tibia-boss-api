@@ -74,7 +74,7 @@ Criar a camada de persistência (`app/db/repository.py`) e garantir a integridad
 | -------------- | -------------- |
 | **Prioridade** | 🟡 Média       |
 | **Estimativa** | 5 Story Points |
-| **Status**     | ⬜ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -91,12 +91,12 @@ Conectar as pontas. Atualizar o script "Runner" da Sprint 1 para incluir o passo
 5. Enriquecer os objetos Boss com as URLs retornadas
 6. Chamar `Repository.upsert_batch` (ou loop de upserts assíncronos) para salvar
 
-- [ ] **Performance:** Manter o controle de concorrência (Semaphore). Não tentar processar 1000 bosses de uma vez na memória RAM; processar em chunks para manter a pegada de memória baixa
+- [x] **Performance:** Manter o controle de concorrência (Semaphore). Não tentar processar 1000 bosses de uma vez na memória RAM; processar em chunks para manter a pegada de memória baixa
 
 ### Definition of Done (DoD)
 
-- [ ] Script roda completo
-- [ ] Banco populado com Bosses contendo Stats (Sprint 1) + URLs de Imagens (Sprint 2)
+- [x] Script roda completo
+- [x] Banco populado com Bosses contendo Stats (Sprint 1) + URLs de Imagens (Sprint 2)
 
 ---
 
@@ -147,7 +147,7 @@ O log **DEVE** conter:
 | --------- | ---------------------- | ------------ | ---------- | ------------ |
 | 2.1       | Image Resolver Service | 5 SP         | 🔴 Alta    | ✅ Concluída |
 | 2.2       | Repositório MongoDB    | 3 SP         | 🔴 Alta    | ✅ Concluída |
-| 2.3       | Pipeline Integration   | 5 SP         | 🟡 Média   | ⬜ Pendente  |
+| 2.3       | Pipeline Integration   | 5 SP         | 🟡 Média   | ✅ Concluída |
 | 2.4       | Sistema de Logs        | 3 SP         | 🟡 Média   | ⬜ Pendente  |
 | **Total** |                        | **16 SP**    |            |              |
 
@@ -196,7 +196,7 @@ Time, quando abrirem o PR, vou olhar especificamente para:
 
 ## 🎯 Próximos Passos
 
-- Iniciar Task 2.3: Pipeline Integration (The "Gluer")
+- Iniciar Task 2.4: Sistema de Logs "Dead Letter" (Error Handling)
 
 ---
 
@@ -236,3 +236,28 @@ Time, quando abrirem o PR, vou olhar especificamente para:
   - Teste de criação de índices
 - Script de teste manual criado em `scripts/test_repository.py`
 - Todos os testes passando ✅
+
+### ✅ Task 2.3 Concluída (Pipeline Integration - The "Gluer")
+
+- Parser atualizado (`app/services/wikitext_parser.py`):
+  - Extração do campo `image` do template Infobox
+  - Normalização de nomes de arquivos para formato `File:Name.ext`
+  - Criação automática de `BossVisuals` com `filename` quando imagem encontrada
+  - Método `_normalize_image_filename()` para padronizar formatos
+- Pipeline integrado (`app/main_scraper.py`):
+  - Integração completa: TibiaWikiClient → WikitextParser → ImageResolverService → BossRepository
+  - Processamento em lotes de 50 bosses para otimizar memória
+  - Função `process_batch_with_images()` para resolver URLs em lote
+  - Função `process_and_save_batch()` para processar e salvar lotes
+  - Controle de concorrência mantido com `Semaphore(10)`
+  - Salvamento no MongoDB ao invés de JSON
+  - Logging detalhado de progresso por lote
+- Fluxo completo implementado:
+  1. Scraper busca lista de bosses
+  2. Parser extrai dados + filename de imagem
+  3. Acumula bosses em memória até lote de 50
+  4. Resolve URLs de imagens em lote (batch)
+  5. Enriquece bosses com URLs resolvidas
+  6. Salva no MongoDB usando `upsert_batch`
+- Todos os testes do parser passando (17 testes) ✅
+- Teste manual validado: extração de imagem funcionando corretamente

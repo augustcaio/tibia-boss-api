@@ -52,11 +52,8 @@ class WikitextParser:
                     f"Template '{cls.INFOBOX_BOSS_TEMPLATE}' ou '{cls.INFOBOX_CREATURE_TEMPLATE}' não encontrado no wikitext"
                 )
 
-            # Extrai os dados do template
-            data = cls._extract_template_data(infobox, boss_name)
-
-            # Cria e retorna o modelo
-            return BossModel(**data)
+            # Extrai os dados do template (já retorna BossModel com image_filename)
+            return cls._extract_template_data(infobox, boss_name)
 
         except mwparserfromhell.parser.ParserError as e:
             logger.error(f"Erro ao fazer parse do wikitext: {e}")
@@ -113,7 +110,37 @@ class WikitextParser:
         return None
 
     @classmethod
-    def _extract_template_data(cls, template, boss_name: Optional[str] = None) -> dict:
+    def _normalize_image_filename(cls, image_value: str) -> str:
+        """
+        Normaliza o nome do arquivo de imagem para o formato File:Name.ext.
+
+        Args:
+            image_value: Valor do campo image (pode ser "File:Name.gif", "Name.gif", etc.)
+
+        Returns:
+            Nome normalizado no formato "File:Name.ext"
+        """
+        if not image_value:
+            return None
+
+        image_value = str(image_value).strip()
+
+        # Remove prefixo "File:" se já existir
+        if image_value.startswith("File:"):
+            return image_value
+
+        # Remove links do MediaWiki ([[File:Name.gif]] ou [[:File:Name.gif]])
+        image_value = image_value.replace("[[", "").replace("]]", "")
+        if image_value.startswith(":File:"):
+            image_value = image_value[1:]  # Remove o ":"
+        elif image_value.startswith("File:"):
+            return image_value
+        else:
+            # Adiciona prefixo "File:" se não tiver
+            return f"File:{image_value}"
+
+    @classmethod
+    def _extract_template_data(cls, template, boss_name: Optional[str] = None) -> BossModel:
         """
         Extrai os dados do template Infobox Boss.
 
@@ -122,7 +149,7 @@ class WikitextParser:
             boss_name: Nome do boss (fallback)
 
         Returns:
-            Dicionário com os dados extraídos
+            Instância de BossModel com os dados extraídos
         """
         data = {
             "name": boss_name or "",
@@ -130,6 +157,7 @@ class WikitextParser:
             "exp": None,
             "walks_through": [],
             "immunities": [],
+            "image_filename": None,  # Nome do arquivo de imagem (ex: "File:Morgaroth.gif")
         }
 
         # Mapeia os campos do template para o modelo
@@ -147,6 +175,9 @@ class WikitextParser:
             "immunities": "immunities",
             "immunity": "immunities",
             "immune": "immunities",
+            "image": "image",
+            "img": "image",
+            "picture": "image",
         }
 
         # Extrai o nome do template (pode estar no primeiro parâmetro posicional ou no campo "name")
@@ -172,6 +203,10 @@ class WikitextParser:
                 # Atribui o valor ao campo correspondente
                 if field_name == "name":
                     data["name"] = param_value
+                elif field_name == "image":
+                    # Normaliza o nome do arquivo de imagem
+                    image_filename = cls._normalize_image_filename(param_value)
+                    data["image_filename"] = image_filename
                 elif field_name in ("hp", "exp"):
                     data[field_name] = param_value
                 elif field_name in ("walks_through", "immunities"):
@@ -186,5 +221,16 @@ class WikitextParser:
         if not data["name"] and boss_name:
             data["name"] = boss_name
 
-        return data
+        # Remove image_filename do dict antes de criar o modelo (será usado depois)
+        image_filename = data.pop("image_filename", None)
+
+        # Cria o modelo
+        boss_model = BossModel(**data)
+
+        # Adiciona o filename ao modelo se encontrado
+        if image_filename:
+            from app.models.boss import BossVisuals
+            boss_model.visuals = BossVisuals(filename=image_filename)
+
+        return boss_model
 

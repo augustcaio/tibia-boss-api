@@ -1,18 +1,21 @@
 """Script orchestrator para extrair e processar dados de Bosses do TibiaWiki.
 
-Este script integra o TibiaWikiClient e o WikitextParser para:
-1. Buscar lista de todos os bosses
-2. Processar cada boss (buscar wikitext e fazer parse)
-3. Salvar resultado em JSON
+Este script integra:
+1. TibiaWikiClient - busca lista de bosses e wikitext
+2. WikitextParser - extrai dados estruturados + nome do arquivo de imagem
+3. ImageResolverService - resolve URLs de imagens em lote
+4. BossRepository - persiste dados no MongoDB
 """
 
 import asyncio
-import json
 import logging
-from pathlib import Path
 from typing import Dict, List, Optional
 
-from app.models.boss import BossModel
+from app.core.config import settings
+from app.db.connection import close_database, init_database
+from app.db.repository import BossRepository
+from app.models.boss import BossModel, BossVisuals
+from app.services.image_resolver import ImageResolverService
 from app.services.tibiawiki_client import TibiaWikiClient
 from app.services.wikitext_parser import ParserError, WikitextParser
 
@@ -27,8 +30,7 @@ logger = logging.getLogger(__name__)
 
 # Configurações
 MAX_CONCURRENT_REQUESTS = 10
-OUTPUT_DIR = Path("data")
-OUTPUT_FILE = OUTPUT_DIR / "bosses_dump.json"
+BATCH_SIZE = 50  # Tamanho do lote para processamento de imagens e salvamento
 
 
 async def process_boss(
@@ -59,10 +61,10 @@ async def process_boss(
                 logger.warning(f"Wikitext não encontrado para: {boss_name}")
                 return None
 
-            # Faz o parse do wikitext
+            # Faz o parse do wikitext (já extrai image_filename se disponível)
             boss_model = WikitextParser.parse(wikitext, boss_name=boss_name)
 
-            logger.info(f"Processed {boss_name}")
+            logger.debug(f"Processed {boss_name}")
             return boss_model
 
         except ParserError as e:
@@ -73,19 +75,116 @@ async def process_boss(
             return None
 
 
+async def process_batch_with_images(
+    bosses: List[BossModel],
+    image_resolver: ImageResolverService,
+) -> List[BossModel]:
+    """
+    Processa um lote de bosses resolvendo URLs de imagens.
+
+    Args:
+        bosses: Lista de BossModel com filename já extraído
+        image_resolver: Instância do ImageResolverService
+
+    Returns:
+        Lista de bosses enriquecidos com URLs de imagens
+    """
+    if not bosses:
+        return []
+
+    # Coleta todos os filenames de imagens do lote
+    image_filenames = []
+    boss_to_filenames = {}  # Mapeia boss -> filename para atualizar depois
+
+    for boss in bosses:
+        if boss.visuals and boss.visuals.filename:
+            filename = boss.visuals.filename
+            image_filenames.append(filename)
+            boss_to_filenames[boss] = filename
+
+    # Se não há imagens, retorna os bosses sem modificação
+    if not image_filenames:
+        logger.debug(f"Nenhuma imagem encontrada no lote de {len(bosses)} bosses")
+        return bosses
+
+    # Remove duplicatas mantendo ordem
+    unique_filenames = list(dict.fromkeys(image_filenames))
+
+    logger.info(f"Resolvendo {len(unique_filenames)} imagens para lote de {len(bosses)} bosses...")
+
+    # Resolve URLs das imagens em lote
+    try:
+        image_urls = await image_resolver.resolve_images(unique_filenames)
+    except Exception as e:
+        logger.error(f"Erro ao resolver imagens: {e}")
+        image_urls = {}
+
+    # Enriquece os bosses com as URLs resolvidas
+    enriched_bosses = []
+    for boss in bosses:
+        if boss in boss_to_filenames:
+            filename = boss_to_filenames[boss]
+            url = image_urls.get(filename)
+
+            # Atualiza ou cria o objeto visuals
+            if boss.visuals:
+                boss.visuals.gif_url = url
+            else:
+                boss.visuals = BossVisuals(filename=filename, gif_url=url)
+
+        enriched_bosses.append(boss)
+
+    return enriched_bosses
+
+
+async def process_and_save_batch(
+    bosses: List[BossModel],
+    image_resolver: ImageResolverService,
+    repository: BossRepository,
+) -> int:
+    """
+    Processa um lote de bosses: resolve imagens e salva no MongoDB.
+
+    Args:
+        bosses: Lista de BossModel
+        image_resolver: Instância do ImageResolverService
+        repository: Instância do BossRepository
+
+    Returns:
+        Número de bosses salvos com sucesso
+    """
+    if not bosses:
+        return 0
+
+    # Resolve URLs de imagens
+    enriched_bosses = await process_batch_with_images(bosses, image_resolver)
+
+    # Salva no MongoDB
+    success_count = await repository.upsert_batch(enriched_bosses)
+
+    logger.info(f"Lote processado: {success_count}/{len(enriched_bosses)} bosses salvos")
+    return success_count
+
+
 async def main():
     """Função principal do script orchestrator."""
     logger.info("=" * 60)
-    logger.info("Iniciando scraper de Bosses do TibiaWiki")
+    logger.info("Iniciando scraper de Bosses do TibiaWiki (Sprint 2)")
     logger.info("=" * 60)
 
-    # Cria diretório de saída se não existir
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    # Inicializa MongoDB
+    logger.info("Inicializando conexão MongoDB...")
+    db = await init_database(
+        mongodb_url=settings.mongodb_url,
+        database_name=settings.database_name,
+    )
+    repository = BossRepository(db)
+    logger.info("✅ MongoDB conectado e índices criados")
 
     # Cria semáforo para limitar requisições simultâneas
     semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
-    async with TibiaWikiClient() as client:
+    async with TibiaWikiClient() as client, ImageResolverService() as image_resolver:
         # 1. Busca lista de todos os bosses
         logger.info("Buscando lista de todos os bosses...")
         bosses_list = await client.get_all_bosses()
@@ -116,22 +215,31 @@ async def main():
         success_rate = (success_count / total_bosses * 100) if total_bosses > 0 else 0
 
         logger.info("-" * 60)
-        logger.info(f"Processamento concluído:")
+        logger.info(f"Parse concluído:")
         logger.info(f"  Total: {total_bosses}")
         logger.info(f"  Sucesso: {success_count}")
         logger.info(f"  Falhas: {failure_count}")
         logger.info(f"  Taxa de sucesso: {success_rate:.1f}%")
 
-        # 3. Salva resultado em JSON
-        logger.info(f"Salvando resultados em {OUTPUT_FILE}...")
+        # 3. Processa em lotes: resolve imagens e salva no MongoDB
+        logger.info("-" * 60)
+        logger.info(f"Processando em lotes de {BATCH_SIZE} bosses...")
 
-        # Converte BossModel para dict
-        bosses_data = [boss.model_dump() for boss in processed_bosses]
+        total_saved = 0
+        for i in range(0, len(processed_bosses), BATCH_SIZE):
+            batch = processed_bosses[i : i + BATCH_SIZE]
+            batch_num = (i // BATCH_SIZE) + 1
+            total_batches = (len(processed_bosses) + BATCH_SIZE - 1) // BATCH_SIZE
 
-        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-            json.dump(bosses_data, f, indent=2, ensure_ascii=False)
+            logger.info(f"Processando lote {batch_num}/{total_batches} ({len(batch)} bosses)...")
 
-        logger.info(f"✅ {len(bosses_data)} bosses salvos em {OUTPUT_FILE}")
+            saved = await process_and_save_batch(batch, image_resolver, repository)
+            total_saved += saved
+
+        logger.info("-" * 60)
+        logger.info(f"✅ Pipeline completo:")
+        logger.info(f"  Bosses processados: {success_count}")
+        logger.info(f"  Bosses salvos no MongoDB: {total_saved}")
         logger.info("=" * 60)
 
         # Validação do DoD
@@ -140,7 +248,10 @@ async def main():
         else:
             logger.warning(f"⚠️  DoD: Taxa de sucesso {success_rate:.1f}% < 90%")
 
+    # Fecha conexão MongoDB
+    await close_database()
+    logger.info("Conexão MongoDB fechada")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
-

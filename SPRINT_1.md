@@ -39,7 +39,7 @@ Inicializar o repositório seguindo a Arquitetura em Camadas definida. Configura
 | -------------- | -------------- |
 | **Prioridade** | 🔴 Alta        |
 | **Estimativa** | 5 Story Points |
-| **Status**     | ⬜ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -47,16 +47,16 @@ Criar uma classe cliente responsável por toda comunicação HTTP com a API do T
 
 ### Detalhes Técnicos
 
-- [ ] Lib: `httpx.AsyncClient`
-- [ ] **Requisito 1 (Discovery):** Método `get_all_bosses()` que consome `action=query&list=categorymembers&cmtitle=Category:Bosses`. Deve lidar com paginação (`cmcontinue`) automaticamente para puxar todos os 500+ bosses.
-- [ ] **Requisito 2 (Extraction):** Método `get_boss_wikitext(pageid/title)` que consome `action=query&prop=revisions&rvprop=content` para pegar o texto bruto.
-- [ ] Configurar User-Agent no header: `TibiaBossApiBot/0.1 (contato@seuexemplo.com)`
-- [ ] Implementar Exponential Backoff simples para erros 429 (Too Many Requests)
+- [x] Lib: `httpx.AsyncClient`
+- [x] **Requisito 1 (Discovery):** Método `get_all_bosses()` que consome `action=query&list=categorymembers&cmtitle=Category:Bosses`. Deve lidar com paginação (`cmcontinue`) automaticamente para puxar todos os 500+ bosses.
+- [x] **Requisito 2 (Extraction):** Método `get_boss_wikitext(pageid/title)` que consome `action=query&prop=revisions&rvprop=content` para pegar o texto bruto.
+- [x] Configurar User-Agent no header: `TibiaBossApiBot/0.1 (contato@seuexemplo.com)`
+- [x] Implementar Exponential Backoff simples para erros 429 (Too Many Requests)
 
 ### Definition of Done (DoD)
 
-- [ ] Teste unitário (mockando httpx) para listagem e obtenção de conteúdo
-- [ ] Script de teste manual imprime no console uma lista de nomes de Bosses reais
+- [x] Teste unitário (mockando httpx) para listagem e obtenção de conteúdo
+- [x] Script de teste manual imprime no console uma lista de nomes de Bosses reais
 
 ---
 
@@ -146,7 +146,7 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 | Task      | Título               | Story Points | Prioridade | Status       |
 | --------- | -------------------- | ------------ | ---------- | ------------ |
 | 1.1       | Setup do Projeto     | 2 SP         | 🔴 Alta    | ✅ Concluída |
-| 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ⬜ Pendente  |
+| 1.2       | TibiaWiki Client     | 5 SP         | 🔴 Alta    | ✅ Concluída |
 | 1.3       | Parser + Sanitização | 8 SP         | 🔴 Alta    | ⬜ Pendente  |
 | 1.4       | Orchestrator Script  | 3 SP         | 🟡 Média   | ⬜ Pendente  |
 | **Total** |                      | **18 SP**    |            |              |
@@ -173,9 +173,20 @@ Integrar o Client (Task 1.2) e o Parser (Task 1.3) em um script executável para
 - Feature branch: `feature/task-1.1-setup` → merged em `develop`
 - Commit: `6c2d626`
 
+### ✅ Task 1.2 Concluída (TibiaWiki Client Wrapper)
+
+- Classe `TibiaWikiClient` criada em `app/services/tibiawiki_client.py`
+- Implementado `get_all_bosses()` com paginação automática via `cmcontinue`
+- Implementado `get_boss_wikitext()` para extrair conteúdo por `pageid` ou `title`
+- User-Agent configurado: `TibiaBossApiBot/0.1 (contato@seuexemplo.com)`
+- Exponential Backoff implementado para erros 429 (Too Many Requests)
+- Suporte a context manager (`async with`) para gerenciamento de recursos
+- Testes unitários completos em `tests/test_tibiawiki_client.py` (mockando httpx)
+- Script de teste manual criado em `scripts/test_tibiawiki_client.py`
+
 ### 🔜 Próximo Passo
 
-- Iniciar Task 1.2: TibiaWiki Client Wrapper (Async)
+- Iniciar Task 1.3: Parser de Wikitext e Sanitização (Pydantic)
 
 ---
 

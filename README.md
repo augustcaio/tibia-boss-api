@@ -1,16 +1,16 @@
 <div align="center">
   <img src="https://static.tibia.com/images/global/header/tibia-logo-artwork-top.gif" alt="Tibia Logo" width="400"/>
   
-  # 🎮 Tibia Boss API
+  # Tibia Boss API
   
   API para scraping e disponibilização de dados de Bosses do Tibia Wiki.
 </div>
 
-## 📋 Sobre o Projeto
+## Sobre o Projeto
 
 Esta API extrai dados de bosses do [TibiaWiki](https://tibia.fandom.com) e os disponibiliza através de endpoints REST estruturados.
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 - **Python 3.11+**
 - **FastAPI** - Framework web assíncrono
@@ -19,7 +19,7 @@ Esta API extrai dados de bosses do [TibiaWiki](https://tibia.fandom.com) e os di
 - **httpx** - Cliente HTTP assíncrono
 - **mwparserfromhell** - Parser de Wikitext
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Pré-requisitos
 
@@ -84,7 +84,7 @@ poetry run pre-commit install
 poetry run pre-commit run --all-files
 ```
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 tibia-boss-api/
@@ -107,7 +107,7 @@ tibia-boss-api/
 └── requirements-dev.txt # Dependências de desenvolvimento (pip)
 ```
 
-## 🛣️ Rotas da API
+## Rotas da API
 
 A API está disponível em `http://localhost:8000` após iniciar o servidor.
 
@@ -127,7 +127,7 @@ A API está disponível em `http://localhost:8000` após iniciar o servidor.
 
 Para mais detalhes, consulte o arquivo [ROUTES.md](ROUTES.md).
 
-## 🧪 Testes
+## Testes
 
 ```bash
 # Rodar todos os testes
@@ -141,7 +141,7 @@ poetry run pytest --cov=app
 pytest --cov=app
 ```
 
-## 📦 Dependências
+## Dependências
 
 O projeto pode ser instalado usando:
 
@@ -149,10 +149,11 @@ O projeto pode ser instalado usando:
 - **pip:** `pip install -r requirements-dev.txt`
 
 Arquivos disponíveis:
+
 - `requirements.txt` - Dependências de produção
 - `requirements-dev.txt` - Dependências de desenvolvimento (inclui produção)
 
-## 🚀 Executando o Projeto
+## Executando o Projeto
 
 ```bash
 # 1. Subir o MongoDB
@@ -168,6 +169,6 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 # http://localhost:8000/docs
 ```
 
-## 📜 Licença
+## Licença
 
 MIT

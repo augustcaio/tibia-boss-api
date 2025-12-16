@@ -278,7 +278,7 @@ Ao revisar o PR, verificar:
     - `GET /bosses/search`: 200, 400, 422, 500
     - `GET /health`: 200, 500
 - [x] **Swagger:** A documentação está completa e com exemplos úteis?
-  - ✅ Verificado: 
+  - ✅ Verificado:
     - Metadata completa no FastAPI (title, description, version, contact)
     - Exemplos em todos os Pydantic Models (BossModel, BossVisuals, PaginatedResponse, BossShortSchema)
     - Todas as rotas têm `summary` e `description` claras

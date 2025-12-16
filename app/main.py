@@ -50,6 +50,7 @@ app = FastAPI(
         "url": "https://github.com/tibia-boss-api",
     },
     lifespan=lifespan,
+    openapi_version="3.0.3",  # Compatibilidade com ReDoc
 )
 
 # Configuração CORS

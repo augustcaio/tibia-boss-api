@@ -263,12 +263,25 @@ A documentação automática do FastAPI é ótima, mas precisa de refinamento ma
 
 Ao revisar o PR, verificar:
 
-- [ ] **Dependency Injection:** As rotas estão usando `Depends(get_database)` corretamente?
-- [ ] **Paginação:** O `PaginatedResponse` está sendo usado de forma consistente?
-- [ ] **Projection:** A listagem não está retornando campos desnecessários (`raw_wikitext`)?
-- [ ] **Sanitização:** A busca está escapando caracteres especiais com `re.escape()`?
-- [ ] **Error Handling:** Todos os endpoints têm tratamento adequado de erros (404, 422, 500)?
-- [ ] **Swagger:** A documentação está completa e com exemplos úteis?
+- [x] **Dependency Injection:** As rotas estão usando `Depends(get_database)` corretamente?
+  - ✅ Verificado: Todas as 4 rotas (list_bosses, get_boss_by_slug, search_bosses, health_check) usam `Depends(get_database)`
+- [x] **Paginação:** O `PaginatedResponse` está sendo usado de forma consistente?
+  - ✅ Verificado: `PaginatedResponse[BossShortSchema]` usado em `list_bosses` e `search_bosses`
+- [x] **Projection:** A listagem não está retornando campos desnecessários (`raw_wikitext`)?
+  - ✅ Verificado: `list_bosses()` e `search_by_name()` usam projection MongoDB retornando apenas `name`, `slug`, `visuals`, `hp` (sem `raw_wikitext`)
+- [x] **Sanitização:** A busca está escapando caracteres especiais com `re.escape()`?
+  - ✅ Verificado: `search_bosses()` usa `re.escape(q.strip())` na linha 159 para evitar ReDoS
+- [x] **Error Handling:** Todos os endpoints têm tratamento adequado de erros (404, 422, 500)?
+  - ✅ Verificado: Todos os endpoints documentam responses:
+    - `GET /bosses`: 200, 422, 500
+    - `GET /bosses/{slug}`: 200, 404, 422, 500
+    - `GET /bosses/search`: 200, 400, 422, 500
+    - `GET /health`: 200, 500
+- [x] **Swagger:** A documentação está completa e com exemplos úteis?
+  - ✅ Verificado: 
+    - Metadata completa no FastAPI (title, description, version, contact)
+    - Exemplos em todos os Pydantic Models (BossModel, BossVisuals, PaginatedResponse, BossShortSchema)
+    - Todas as rotas têm `summary` e `description` claras
 
 ---
 

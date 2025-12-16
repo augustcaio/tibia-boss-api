@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/tibia-logo.gif" alt="Tibia Logo" width="400"/>
+  <img src="docs/assets/tibia-logo.gif" alt="Tibia Logo" width="200"/>
   
   # Tibia Boss API
   

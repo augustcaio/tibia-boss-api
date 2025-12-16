@@ -147,6 +147,7 @@ Criar `GET /api/v1/bosses/{slug}` para exibir a ficha completa do Boss.
 ### 📝 Nota de Implementação
 
 **Implementação realizada seguindo padrão MCP:**
+
 - Endpoint `GET /api/v1/bosses/{slug}` implementado
 - Usa `slug` como path parameter
 - Retorna `BossModel` completo com todos os campos
@@ -182,6 +183,7 @@ Permitir que o usuário encontre bosses digitando partes do nome.
 ### 📝 Nota de Implementação
 
 **Implementação realizada seguindo padrão MCP:**
+
 - Endpoint `GET /api/v1/bosses/search` implementado
 - Métodos `search_by_name()` e `count_by_search()` adicionados ao `BossRepository`
 - Query sanitizada com `re.escape()` para evitar ReDoS

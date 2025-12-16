@@ -1,0 +1,12 @@
+# Dependências de Produção
+# Gerado a partir do pyproject.toml
+# Python >=3.11,<4.0
+
+fastapi>=0.109.0,<0.110.0
+uvicorn[standard]>=0.27.0,<0.28.0
+motor>=3.3.2,<4.0.0
+pydantic>=2.5.3,<3.0.0
+pydantic-settings>=2.1.0,<3.0.0
+httpx>=0.26.0,<0.27.0
+mwparserfromhell>=0.6.5,<0.7.0
+

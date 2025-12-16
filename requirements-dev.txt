@@ -1,0 +1,15 @@
+# Dependências de Desenvolvimento
+# Inclui todas as dependências de produção + dependências de dev
+# Gerado a partir do pyproject.toml
+
+# Dependências de Produção
+-r requirements.txt
+
+# Dependências de Desenvolvimento
+pytest>=7.4.4,<8.0.0
+pytest-asyncio>=0.23.3,<0.24.0
+pytest-cov>=4.1.0,<5.0.0
+black>=24.1.0,<25.0.0
+isort>=5.13.2,<6.0.0
+pre-commit>=3.6.0,<4.0.0
+

@@ -52,7 +52,7 @@ Estruturar o servidor FastAPI para deixar de ser um script e virar uma aplicaç�
 | -------------- | -------------- |
 | **Prioridade** | 🔴 Alta        |
 | **Estimativa** | 5 Story Points |
-| **Status**     | ⏳ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -60,16 +60,36 @@ Criar `GET /api/v1/bosses`. Implementar paginação robusta para não sobrecarre
 
 ### Detalhes Técnicos
 
-- [ ] **Query Params:** Aceitar `page` (default 1) e `limit` (default 20, max 100)
-- [ ] **Repository:** Método `list_bosses(skip: int, limit: int)`
-- [ ] **Mongo Projection:** Crucial. Não retornar o campo `raw_wikitext` ou campos de metadados internos nessa lista. Retornar apenas: `name`, `slug`, `visuals`, `stats.health`
-- [ ] **Schema de Resposta:** Usar Pydantic Generics para padronizar a resposta (ver Nota Técnica abaixo)
+- [x] **Query Params:** Aceitar `page` (default 1) e `limit` (default 20, max 100)
+- [x] **Repository:** Método `list_bosses(skip: int, limit: int)`
+- [x] **Mongo Projection:** Crucial. Não retornar o campo `raw_wikitext` ou campos de metadados internos nessa lista. Retornar apenas: `name`, `slug`, `visuals`, `hp`
+- [x] **Schema de Resposta:** Usar Pydantic Generics para padronizar a resposta (ver Nota Técnica abaixo)
 
 ### Definition of Done (DoD)
 
-- [ ] Request `GET /bosses?limit=5` retorna exatamente 5 itens
-- [ ] Response body inclui metadados: `total_items`, `page`, `total_pages`
-- [ ] Teste de integração valida que o `skip` está funcionando (página 2 traz itens diferentes da página 1)
+- [x] Request `GET /api/v1/bosses?limit=5` retorna exatamente 5 itens
+- [x] Response body inclui metadados: `total`, `page`, `pages`, `size`
+- [x] Teste de integração valida que o `skip` está funcionando (página 2 traz itens diferentes da página 1)
+
+### 📝 Nota de Implementação
+
+**Implementação realizada:**
+
+- Criado `app/schemas/response.py` com `PaginatedResponse[T]` usando Pydantic Generics
+- Criado `app/schemas/boss.py` com `BossShortSchema` para listagem (sem campos pesados)
+- Adicionado método `list_bosses(skip, limit)` no `BossRepository` com projection MongoDB
+- Implementado endpoint `GET /api/v1/bosses` com:
+  - Query params: `page` (default 1, ge=1) e `limit` (default 20, ge=1, le=100)
+  - Validação automática via FastAPI Query
+  - Cálculo de `skip` baseado na página
+  - Metadados de paginação: `total`, `page`, `size`, `pages`
+- Criados testes em `tests/test_bosses_endpoint.py` cobrindo:
+  - Paginação padrão
+  - Limit customizado
+  - Validação de skip (página 2 diferente de página 1)
+  - Metadados corretos
+  - Projection não retorna campos pesados
+  - Validação de limites máximos
 
 ### 👨‍💻 Nota Técnica do Tech Lead
 
@@ -185,12 +205,12 @@ A documentação automática do FastAPI é ótima, mas precisa de refinamento ma
 **Status Geral:** ⏳ Em Andamento
 
 - **Total de Tarefas:** 5
-- **Tarefas Concluídas:** 1
-- **Tarefas Pendentes:** 4
+- **Tarefas Concluídas:** 2
+- **Tarefas Pendentes:** 3
 
 ### Progresso por Prioridade
 
-- 🔴 **Alta:** 3 tarefas (✅ 3.1, ⏳ 3.2, ⏳ 3.3)
+- 🔴 **Alta:** 3 tarefas (✅ 3.1, ✅ 3.2, ⏳ 3.3)
 - 🟡 **Média:** 1 tarefa (⏳ 3.4)
 - 🟢 **Baixa:** 1 tarefa (⏳ 3.5)
 

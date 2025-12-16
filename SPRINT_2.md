@@ -159,10 +159,10 @@ O log **DEVE** conter:
 
 Time, quando abrirem o PR, vou olhar especificamente para:
 
-- [ ] **Chunks:** Vocês estão respeitando o limite da API do Wiki?
-- [ ] **POST vs GET:** Estão enviando a lista de imagens via Body para não estourar a URL?
-- [ ] **Indexes:** O código de inicialização do banco está robusto?
-- [ ] **Async/Await:** Estão usando `await gather()` corretamente ou estão fazendo `await` dentro de um loop `for` (serializando o que deveria ser paralelo)?
+- [x] **Chunks:** Vocês estão respeitando o limite da API do Wiki?
+- [x] **POST vs GET:** Estão enviando a lista de imagens via Body para não estourar a URL?
+- [x] **Indexes:** O código de inicialização do banco está robusto?
+- [x] **Async/Await:** Estão usando `await gather()` corretamente ou estão fazendo `await` dentro de um loop `for` (serializando o que deveria ser paralelo)?
 
 ---
 

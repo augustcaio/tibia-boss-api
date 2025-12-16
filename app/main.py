@@ -43,6 +43,11 @@ def custom_openapi():
     )
     # Força versão OpenAPI 3.0.3 para compatibilidade com ReDoc
     openapi_schema["openapi"] = "3.0.3"
+    # Adiciona servidor padrão se não existir (necessário para ReDoc)
+    if "servers" not in openapi_schema or not openapi_schema.get("servers"):
+        openapi_schema["servers"] = [
+            {"url": "http://localhost:8000", "description": "Servidor local de desenvolvimento"}
+        ]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 

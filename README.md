@@ -122,7 +122,6 @@ A API está disponível em `http://localhost:8000` após iniciar o servidor.
 ### Documentação Interativa
 
 - **Swagger UI:** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
 - **OpenAPI JSON:** `http://localhost:8000/openapi.json`
 
 Para mais detalhes, consulte o arquivo [ROUTES.md](ROUTES.md).

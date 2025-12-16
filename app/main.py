@@ -28,6 +28,25 @@ async def lifespan(app: FastAPI):
     await close_database()
 
 
+def custom_openapi():
+    """Gera schema OpenAPI 3.0.3 para compatibilidade com ReDoc."""
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    from fastapi.openapi.utils import get_openapi
+    
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    # Força versão OpenAPI 3.0.3 para compatibilidade com ReDoc
+    openapi_schema["openapi"] = "3.0.3"
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
 app = FastAPI(
     title="Tibia Boss API",
     description="""
@@ -50,8 +69,10 @@ app = FastAPI(
         "url": "https://github.com/tibia-boss-api",
     },
     lifespan=lifespan,
-    openapi_version="3.0.3",  # Compatibilidade com ReDoc
 )
+
+# Sobrescreve a função openapi para usar versão 3.0.3
+app.openapi = custom_openapi
 
 # Configuração CORS
 app.add_middleware(

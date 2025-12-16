@@ -137,7 +137,6 @@
 A documentação completa da API está disponível em:
 
 - **Swagger UI:** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
 - **OpenAPI JSON:** `http://localhost:8000/openapi.json`
 
 ---

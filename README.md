@@ -1,10 +1,4 @@
-<div align="center">
-  <img src="https://static.tibia.com/images/global/header/tibia-logo-artwork-top.gif" alt="Tibia Logo" width="400"/>
-  
-  # Tibia Boss API
-  
-  API para scraping e disponibilização de dados de Bosses do Tibia Wiki.
-</div>
+
 
 ## Sobre o Projeto
 

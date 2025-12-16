@@ -223,6 +223,7 @@ A documentação automática do FastAPI é ótima, mas precisa de refinamento ma
 ### 📝 Nota de Implementação
 
 **Implementação realizada seguindo padrão MCP:**
+
 - Metadata completa no FastAPI:
   - `title`: "Tibia Boss API"
   - `description`: Descrição detalhada com funcionalidades e fonte de dados

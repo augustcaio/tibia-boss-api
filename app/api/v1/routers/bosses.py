@@ -22,6 +22,11 @@ router = APIRouter(
     response_model=PaginatedResponse[BossShortSchema],
     summary="Listar bosses com paginação",
     description="Retorna uma lista paginada de bosses. Use os parâmetros `page` e `limit` para controlar a paginação.",
+    responses={
+        200: {"description": "Lista de bosses retornada com sucesso"},
+        422: {"description": "Parâmetros de validação inválidos"},
+        500: {"description": "Erro interno do servidor"},
+    },
 )
 async def list_bosses(
     page: int = Query(default=1, ge=1, description="Número da página (começa em 1)"),
@@ -76,7 +81,12 @@ async def list_bosses(
     response_model=BossModel,
     summary="Obter detalhes de um boss",
     description="Retorna os detalhes completos de um boss pelo slug.",
-    responses={404: {"description": "Boss not found"}},
+    responses={
+        200: {"description": "Boss encontrado e retornado com sucesso"},
+        404: {"description": "Boss não encontrado"},
+        422: {"description": "Parâmetros de validação inválidos"},
+        500: {"description": "Erro interno do servidor"},
+    },
 )
 async def get_boss_by_slug(
     slug: str,
@@ -109,7 +119,12 @@ async def get_boss_by_slug(
     response_model=PaginatedResponse[BossShortSchema],
     summary="Buscar bosses por nome",
     description="Busca bosses por nome usando regex case insensitive. A query é sanitizada para evitar ReDoS.",
-    responses={400: {"description": "Invalid query parameter"}},
+    responses={
+        200: {"description": "Busca realizada com sucesso"},
+        400: {"description": "Parâmetro de query inválido ou vazio"},
+        422: {"description": "Parâmetros de validação inválidos"},
+        500: {"description": "Erro interno do servidor"},
+    },
 )
 async def search_bosses(
     q: str = Query(..., min_length=1, description="Termo de busca"),

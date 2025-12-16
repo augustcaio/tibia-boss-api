@@ -200,7 +200,7 @@ Permitir que o usuário encontre bosses digitando partes do nome.
 | -------------- | ---------------------------- |
 | **Prioridade** | 🟢 Baixa (Qualidade de Vida) |
 | **Estimativa** | 2 Story Points               |
-| **Status**     | ⏳ Pendente                  |
+| **Status**     | ✅ Concluída                 |
 
 ### Descrição
 
@@ -208,33 +208,53 @@ A documentação automática do FastAPI é ótima, mas precisa de refinamento ma
 
 ### Detalhes Técnicos
 
-- [ ] **Metadata:** Adicionar `title`, `description`, `version` e `contact` no construtor do FastAPI
-- [ ] **Models:** Adicionar `ConfigDict(json_schema_extra=...)` nos Pydantic Models com exemplos reais de Bosses. Isso faz o Swagger mostrar um JSON preenchido e não "string"
-- [ ] **Response Codes:** Documentar explicitamente os erros (404, 422, 500) nos decorators das rotas:
+- [x] **Metadata:** Adicionar `title`, `description`, `version` e `contact` no construtor do FastAPI
+- [x] **Models:** Adicionar `ConfigDict(json_schema_extra=...)` nos Pydantic Models com exemplos reais de Bosses. Isso faz o Swagger mostrar um JSON preenchido e não "string"
+- [x] **Response Codes:** Documentar explicitamente os erros (404, 422, 500) nos decorators das rotas:
   ```python
   @router.get(..., responses={404: {"description": "Not found"}})
   ```
 
 ### Definition of Done (DoD)
 
-- [ ] Acessar `/docs` e ver exemplos úteis (não string, 0) nos schemas de Request/Response
-- [ ] Todas as rotas possuem descrição (`summary`) clara
+- [x] Acessar `/docs` e ver exemplos úteis (não string, 0) nos schemas de Request/Response
+- [x] Todas as rotas possuem descrição (`summary`) clara
+
+### 📝 Nota de Implementação
+
+**Implementação realizada seguindo padrão MCP:**
+- Metadata completa no FastAPI:
+  - `title`: "Tibia Boss API"
+  - `description`: Descrição detalhada com funcionalidades e fonte de dados
+  - `version`: "0.1.0"
+  - `contact`: Informações de contato do time
+- Exemplos adicionados nos Pydantic Models:
+  - `BossModel`: Exemplo completo com Morgaroth (hp, exp, walks_through, immunities, visuals)
+  - `BossVisuals`: Exemplo com URL e filename
+  - `BossShortSchema`: Já tinha exemplo, mantido
+  - `PaginatedResponse`: Exemplo completo com estrutura paginada
+- Códigos de resposta documentados em todas as rotas:
+  - `GET /api/v1/bosses`: 200, 422, 500
+  - `GET /api/v1/bosses/{slug}`: 200, 404, 422, 500
+  - `GET /api/v1/bosses/search`: 200, 400, 422, 500
+  - `GET /api/v1/health`: 200, 500
+- Todas as rotas possuem `summary` e `description` claras
 
 ---
 
 ## 📝 Resumo do Sprint 3
 
-**Status Geral:** ⏳ Em Andamento
+**Status Geral:** ✅ Concluído
 
 - **Total de Tarefas:** 5
-- **Tarefas Concluídas:** 4
-- **Tarefas Pendentes:** 1
+- **Tarefas Concluídas:** 5
+- **Tarefas Pendentes:** 0
 
 ### Progresso por Prioridade
 
 - 🔴 **Alta:** 3 tarefas (✅ 3.1, ✅ 3.2, ✅ 3.3)
 - 🟡 **Média:** 1 tarefa (✅ 3.4)
-- 🟢 **Baixa:** 1 tarefa (⏳ 3.5)
+- 🟢 **Baixa:** 1 tarefa (✅ 3.5)
 
 ---
 

@@ -30,8 +30,25 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Tibia Boss API",
-    description="API para scraping e disponibilização de dados de Bosses do Tibia Wiki",
+    description="""
+    API RESTful para scraping e disponibilização de dados de Bosses do Tibia Wiki.
+    
+    ## Funcionalidades
+    
+    * **Listagem paginada** de bosses
+    * **Busca por nome** usando regex case insensitive
+    * **Detalhes completos** de cada boss pelo slug
+    * **Health check** para monitoramento
+    
+    ## Fonte de Dados
+    
+    Os dados são extraídos do [TibiaWiki](https://tibia.fandom.com) e atualizados periodicamente.
+    """,
     version="0.1.0",
+    contact={
+        "name": "Tibia Boss API Team",
+        "url": "https://github.com/tibia-boss-api",
+    },
     lifespan=lifespan,
 )
 

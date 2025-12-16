@@ -11,7 +11,15 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get(
+    "",
+    summary="Health check",
+    description="Verifica se a API e o banco de dados estão funcionando corretamente.",
+    responses={
+        200: {"description": "Status da API e conexão com banco de dados"},
+        500: {"description": "Erro ao verificar saúde do sistema"},
+    },
+)
 async def health_check(db: AsyncIOMotorDatabase = Depends(get_database)):
     """
     Endpoint de health check.

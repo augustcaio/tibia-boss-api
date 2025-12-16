@@ -12,6 +12,15 @@ class BossVisuals(BaseModel):
     gif_url: Optional[str] = None
     filename: Optional[str] = None
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "gif_url": "https://tibia.fandom.com/images/Morgaroth.gif",
+                "filename": "Morgaroth.gif",
+            }
+        }
+    )
+
 
 class BossModel(BaseModel):
     """Modelo para representar um Boss do Tibia."""
@@ -150,4 +159,18 @@ class BossModel(BaseModel):
     model_config = ConfigDict(
         frozen=False,
         extra="ignore",  # Ignora campos extras do wiki
+        json_schema_extra={
+            "example": {
+                "name": "Morgaroth",
+                "slug": "morgaroth",
+                "hp": 100000,
+                "exp": 50000,
+                "walks_through": ["Fire", "Energy"],
+                "immunities": ["Physical", "Ice"],
+                "visuals": {
+                    "gif_url": "https://tibia.fandom.com/images/Morgaroth.gif",
+                    "filename": "Morgaroth.gif",
+                },
+            }
+        },
     )

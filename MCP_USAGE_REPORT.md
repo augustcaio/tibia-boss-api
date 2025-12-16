@@ -134,7 +134,8 @@ mcp_git-conventional-expert_validate_commit(
 
 ---
 
-**Conclusão:** 
+**Conclusão:**
+
 - ✅ Formatação já está sendo feita via pre-commit hooks (não precisa de MCP manual)
 - ✅ Estrutura do projeto está correta
 - ⚠️ MCP será aplicado nas próximas tasks (3.3 e 3.4) para gerar endpoints

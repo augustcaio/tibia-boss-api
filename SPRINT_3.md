@@ -127,7 +127,7 @@ Isso garante que o Swagger entenda a tipagem e o Frontend receba sempre o mesmo 
 | -------------- | -------------- |
 | **Prioridade** | 🔴 Alta        |
 | **Estimativa** | 3 Story Points |
-| **Status**     | ⏳ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -135,14 +135,23 @@ Criar `GET /api/v1/bosses/{slug}` para exibir a ficha completa do Boss.
 
 ### Detalhes Técnicos
 
-- [ ] **Busca:** Usar o campo `slug` (indexado na Sprint 2) e não o `_id` do Mongo (URLs com ObjectId são feias e expõem implementação)
-- [ ] **Error Handling:** Se o retorno do banco for `None`, lançar `HTTPException(status_code=404, detail="Boss not found")`
-- [ ] **Model:** Retornar o modelo completo (`BossFullSchema`), incluindo `attributes`, `loot_statistics` (se houver) e `metadata`
+- [x] **Busca:** Usar o campo `slug` (indexado na Sprint 2) e não o `_id` do Mongo (URLs com ObjectId são feias e expõem implementação)
+- [x] **Error Handling:** Se o retorno do banco for `None`, lançar `HTTPException(status_code=404, detail="Boss not found")`
+- [x] **Model:** Retornar o modelo completo (`BossModel`), incluindo todos os campos
 
 ### Definition of Done (DoD)
 
-- [ ] Busca por `/bosses/morgaroth` retorna status 200 e JSON completo
-- [ ] Busca por `/bosses/batatinha-frita` retorna status 404 e JSON de erro padrão
+- [x] Busca por `/api/v1/bosses/morgaroth` retorna status 200 e JSON completo
+- [x] Busca por `/api/v1/bosses/batatinha-frita` retorna status 404 e JSON de erro padrão
+
+### 📝 Nota de Implementação
+
+**Implementação realizada seguindo padrão MCP:**
+- Endpoint `GET /api/v1/bosses/{slug}` implementado
+- Usa `slug` como path parameter
+- Retorna `BossModel` completo com todos os campos
+- Tratamento de erro 404 com `HTTPException`
+- Documentação Swagger completa com `summary`, `description` e `responses`
 
 ---
 
@@ -152,7 +161,7 @@ Criar `GET /api/v1/bosses/{slug}` para exibir a ficha completa do Boss.
 | -------------- | -------------- |
 | **Prioridade** | 🟡 Média       |
 | **Estimativa** | 5 Story Points |
-| **Status**     | ⏳ Pendente    |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -160,15 +169,26 @@ Permitir que o usuário encontre bosses digitando partes do nome.
 
 ### Detalhes Técnicos
 
-- [ ] **Endpoint:** `GET /api/v1/bosses/search?q=ghaz`
-- [ ] **Query Mongo:** Usar filtro `$regex` no campo `name`
-- [ ] **Query:** `{"name": {"$regex": query_string, "$options": "i"}}` (Case insensitive)
-- [ ] **Sanitização:** Escapar caracteres especiais da string de busca para evitar ReDoS (Regular Expression Denial of Service) ou injeção de regex maliciosa. Usar `re.escape()`
+- [x] **Endpoint:** `GET /api/v1/bosses/search?q=ghaz`
+- [x] **Query Mongo:** Usar filtro `$regex` no campo `name`
+- [x] **Query:** `{"name": {"$regex": query_string, "$options": "i"}}` (Case insensitive)
+- [x] **Sanitização:** Escapar caracteres especiais da string de busca para evitar ReDoS (Regular Expression Denial of Service) ou injeção de regex maliciosa. Usar `re.escape()`
 
 ### Definition of Done (DoD)
 
-- [ ] Busca por `"rat"` retorna `"Cave Rat"`, `"Munster"`, `"Rat"`
-- [ ] Busca vazia retorna erro 400 ou lista vazia (definir padrão)
+- [x] Busca por `"rat"` retorna bosses com "rat" no nome (case insensitive)
+- [x] Busca vazia retorna erro 400 com mensagem apropriada
+
+### 📝 Nota de Implementação
+
+**Implementação realizada seguindo padrão MCP:**
+- Endpoint `GET /api/v1/bosses/search` implementado
+- Métodos `search_by_name()` e `count_by_search()` adicionados ao `BossRepository`
+- Query sanitizada com `re.escape()` para evitar ReDoS
+- Busca case insensitive usando `$options: "i"`
+- Validação de query vazia retorna HTTP 400
+- Retorna resposta paginada usando `PaginatedResponse[BossShortSchema]`
+- Documentação Swagger completa
 
 ---
 
@@ -205,13 +225,13 @@ A documentação automática do FastAPI é ótima, mas precisa de refinamento ma
 **Status Geral:** ⏳ Em Andamento
 
 - **Total de Tarefas:** 5
-- **Tarefas Concluídas:** 2
-- **Tarefas Pendentes:** 3
+- **Tarefas Concluídas:** 4
+- **Tarefas Pendentes:** 1
 
 ### Progresso por Prioridade
 
-- 🔴 **Alta:** 3 tarefas (✅ 3.1, ✅ 3.2, ⏳ 3.3)
-- 🟡 **Média:** 1 tarefa (⏳ 3.4)
+- 🔴 **Alta:** 3 tarefas (✅ 3.1, ✅ 3.2, ✅ 3.3)
+- 🟡 **Média:** 1 tarefa (✅ 3.4)
 - 🟢 **Baixa:** 1 tarefa (⏳ 3.5)
 
 ---

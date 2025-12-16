@@ -142,6 +142,71 @@ class BossRepository:
             logger.error(f"Erro ao contar bosses: {e}")
             return 0
 
+    async def search_by_name(
+        self, query: str, skip: int = 0, limit: int = 20
+    ) -> List[BossModel]:
+        """
+        Busca bosses por nome usando regex (case insensitive).
+
+        Args:
+            query: String de busca (será sanitizada e usada em regex)
+            skip: Número de documentos a pular
+            limit: Número máximo de documentos a retornar
+
+        Returns:
+            Lista de instâncias de BossModel que correspondem à busca
+        """
+        try:
+            # Projection: retorna apenas os campos necessários para listagem
+            projection = {
+                "name": 1,
+                "slug": 1,
+                "visuals": 1,
+                "hp": 1,
+                "_id": 0,
+            }
+
+            # Cria filtro regex case insensitive
+            filter_query = {"name": {"$regex": query, "$options": "i"}}
+
+            cursor = (
+                self.collection.find(filter_query, projection).skip(skip).limit(limit)
+            )
+            documents = await cursor.to_list(length=limit)
+
+            # Converte documentos para BossModel
+            bosses = []
+            for doc in documents:
+                try:
+                    boss = BossModel(**doc)
+                    bosses.append(boss)
+                except Exception as e:
+                    logger.warning(f"Erro ao converter documento para BossModel: {e}")
+                    continue
+
+            return bosses
+
+        except Exception as e:
+            logger.error(f"Erro ao buscar bosses por nome: {e}")
+            return []
+
+    async def count_by_search(self, query: str) -> int:
+        """
+        Retorna o número total de bosses que correspondem à busca.
+
+        Args:
+            query: String de busca (será sanitizada e usada em regex)
+
+        Returns:
+            Número total de documentos que correspondem à busca
+        """
+        try:
+            filter_query = {"name": {"$regex": query, "$options": "i"}}
+            return await self.collection.count_documents(filter_query)
+        except Exception as e:
+            logger.error(f"Erro ao contar bosses por busca: {e}")
+            return 0
+
     async def list_bosses(self, skip: int = 0, limit: int = 20) -> List[BossModel]:
         """
         Lista bosses com paginação usando projection para otimizar.

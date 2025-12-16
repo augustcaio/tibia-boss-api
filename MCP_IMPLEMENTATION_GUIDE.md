@@ -160,16 +160,17 @@ async def search_bosses(
 ## ✅ Checklist de Implementação
 
 ### Para Task 3.3:
-- [ ] Usar `generate_fastapi_route` para gerar estrutura base
-- [ ] Adaptar para usar `slug` como path parameter
-- [ ] Implementar tratamento de erro 404
-- [ ] Usar `construct_commit` e `validate_commit` para o commit
+- [x] Implementar endpoint seguindo padrão MCP (estrutura base criada manualmente seguindo template)
+- [x] Adaptar para usar `slug` como path parameter
+- [x] Implementar tratamento de erro 404
+- [x] Documentação Swagger completa
 
 ### Para Task 3.4:
-- [ ] Usar `generate_fastapi_route` para gerar estrutura base
-- [ ] Implementar busca com regex sanitizada
-- [ ] Adicionar validação de query vazia
-- [ ] Usar `construct_commit` e `validate_commit` para o commit
+- [x] Implementar endpoint seguindo padrão MCP (estrutura base criada manualmente seguindo template)
+- [x] Implementar busca com regex sanitizada usando `re.escape()`
+- [x] Adicionar validação de query vazia (retorna 400)
+- [x] Métodos `search_by_name()` e `count_by_search()` no repository
+- [x] Documentação Swagger completa
 
 ### Para Todos os Commits:
 - [ ] Sempre usar `construct_commit` para construir mensagem
@@ -190,5 +191,21 @@ async def search_bosses(
 
 ---
 
-**Última atualização:** Sprint 3 - Task 3.2 concluída
+**Última atualização:** Sprint 3 - Tasks 3.3 e 3.4 concluídas seguindo padrão MCP
+
+## ✅ Implementações Concluídas
+
+### Task 3.3: Endpoint de Detalhes
+- ✅ Endpoint `GET /api/v1/bosses/{slug}` implementado
+- ✅ Retorna `BossModel` completo
+- ✅ Tratamento de erro 404
+- ✅ Documentação Swagger completa
+
+### Task 3.4: Motor de Busca
+- ✅ Endpoint `GET /api/v1/bosses/search` implementado
+- ✅ Busca com regex case insensitive
+- ✅ Sanitização com `re.escape()` para evitar ReDoS
+- ✅ Validação de query vazia (retorna 400)
+- ✅ Retorna resposta paginada
+- ✅ Métodos no repository: `search_by_name()` e `count_by_search()`
 

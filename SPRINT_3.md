@@ -10,7 +10,7 @@
 | -------------- | ----------------- |
 | **Prioridade** | 🔴 Alta (Blocker) |
 | **Estimativa** | 3 Story Points    |
-| **Status**     | ⏳ Pendente       |
+| **Status**     | ✅ Concluída      |
 
 ### Descrição
 
@@ -18,16 +18,31 @@ Estruturar o servidor FastAPI para deixar de ser um script e virar uma aplicaç�
 
 ### Detalhes Técnicos
 
-- [ ] **Refatoração:** Mover a lógica de conexão do banco para `app/core/database.py`
-- [ ] **Dependency Injection:** Criar uma função `get_database()` que será usada com `Depends()` nas rotas. Isso é vital para podermos mockar o banco nos testes depois
-- [ ] **Rotas:** Criar arquivo `app/api/v1/routers/bosses.py` e usar `APIRouter`
-- [ ] **Main:** O `app/main.py` deve apenas instanciar o FastAPI, configurar CORS e incluir os routers
+- [x] **Refatoração:** Mover a lógica de conexão do banco para `app/core/database.py`
+- [x] **Dependency Injection:** Criar uma função `get_database()` que será usada com `Depends()` nas rotas. Isso é vital para podermos mockar o banco nos testes depois
+- [x] **Rotas:** Criar arquivo `app/api/v1/routers/bosses.py` e usar `APIRouter`
+- [x] **Main:** O `app/main.py` deve apenas instanciar o FastAPI, configurar CORS e incluir os routers
 
 ### Definition of Done (DoD)
 
-- [ ] Endpoint `GET /health` retorna `{"status": "ok", "db": "connected"}`
-- [ ] Swagger UI carrega em `http://localhost:8000/docs`
-- [ ] O código respeita a separação: Rotas chamam Controllers/Services, que chamam Repositories
+- [x] Endpoint `GET /health` retorna `{"status": "ok", "db": "connected"}`
+- [x] Swagger UI carrega em `http://localhost:8000/docs`
+- [x] O código respeita a separação: Rotas chamam Controllers/Services, que chamam Repositories
+
+### 📝 Nota de Implementação
+
+**Implementação realizada:**
+
+- Criado `app/core/database.py` com a lógica de conexão MongoDB e função `get_database()` para Dependency Injection
+- Criada estrutura de rotas em `app/api/v1/routers/` com:
+  - `bosses.py`: Router para endpoints de bosses (estrutura criada, endpoints serão adicionados nas próximas tasks)
+  - `health.py`: Router para health check com endpoint `GET /api/v1/health`
+- Atualizado `app/main.py` para:
+  - Usar `app.core.database` em vez de `app.db.connection`
+  - Configurar CORS middleware
+  - Incluir routers com prefixo `/api/v1`
+- Mantida compatibilidade: `app/db/connection.py` agora re-exporta de `app/core/database.py` para não quebrar scripts existentes
+- Endpoint `/api/v1/health` implementado usando `Depends(get_database)` para Dependency Injection
 
 ---
 
@@ -170,14 +185,14 @@ A documentação automática do FastAPI é ótima, mas precisa de refinamento ma
 **Status Geral:** ⏳ Em Andamento
 
 - **Total de Tarefas:** 5
-- **Tarefas Concluídas:** 0
-- **Tarefas Pendentes:** 5
+- **Tarefas Concluídas:** 1
+- **Tarefas Pendentes:** 4
 
 ### Progresso por Prioridade
 
-- 🔴 **Alta:** 3 tarefas (3.1, 3.2, 3.3)
-- 🟡 **Média:** 1 tarefa (3.4)
-- 🟢 **Baixa:** 1 tarefa (3.5)
+- 🔴 **Alta:** 3 tarefas (✅ 3.1, ⏳ 3.2, ⏳ 3.3)
+- 🟡 **Média:** 1 tarefa (⏳ 3.4)
+- 🟢 **Baixa:** 1 tarefa (⏳ 3.5)
 
 ---
 

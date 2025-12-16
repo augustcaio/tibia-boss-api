@@ -3,9 +3,11 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.routers import bosses, health
 from app.core.config import settings
-from app.db.connection import close_database, init_database
+from app.core.database import close_database, init_database
 
 
 @asynccontextmanager
@@ -33,23 +35,22 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Configuração CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Em produção, especificar origens permitidas
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Inclui os routers
+app.include_router(health.router, prefix="/api/v1")
+app.include_router(bosses.router, prefix="/api/v1")
+
 
 @app.get("/")
 async def root():
     """Endpoint raiz."""
     return {"message": "Tibia Boss API", "version": "0.1.0"}
-
-
-@app.get("/health")
-async def health():
-    """Endpoint de health check."""
-    from app.db.connection import get_database
-
-    try:
-        db = get_database()
-        # Testa conexão
-        await db.client.admin.command("ping")
-        return {"status": "healthy", "database": "connected"}
-    except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
 

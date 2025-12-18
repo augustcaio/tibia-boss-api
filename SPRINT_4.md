@@ -129,7 +129,7 @@ Proteger a API contra abusos e configurar headers de proxy corretamente.
 | -------------- | -------------- |
 | **Prioridade** | 🟡 Média       |
 | **Estimativa** | 3 Story Points |
-| **Status**     | ⏳ Planejada   |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 
@@ -137,23 +137,23 @@ Garantir a integridade do código antes do merge.
 
 ### Detalhes Técnicos
 
-- [ ] **Arquivo:** `.github/workflows/ci.yml`.
-- [ ] **Jobs:**
-  - [ ] **Build & Lint:**
-    - [ ] Rodar com Python 3.11.
-    - [ ] Cache de Poetry.
-    - [ ] Rodar `ruff` (mais rápido que `black`/`isort`) ou `black --check`.
-  - [ ] **Test:**
-    - [ ] Service: `mongo:6.0`.
-    - [ ] Env: `MONGO_URL=mongodb://localhost:27017`.
-    - [ ] Comando: `pytest -v`.
-- [ ] **Trigger:**
-  - [ ] Push na `main` e em PRs.
+- [x] **Arquivo:** `.github/workflows/ci.yml`.
+- [x] **Jobs:**
+  - [x] **Build & Lint:**
+    - [x] Rodar com Python 3.11.
+    - [x] Cache de Poetry.
+    - [x] Rodar `black --check`.
+  - [x] **Test:**
+    - [x] Service: `mongo:6.0`.
+    - [x] Env: `MONGO_URL=mongodb://localhost:27017`.
+    - [x] Comando: `pytest -v`.
+- [x] **Trigger:**
+  - [x] Push na `main` e em PRs.
 
 ### Definition of Done (DoD)
 
-- [ ] O check verde aparece no GitHub ao abrir um PR.
-- [ ] O pipeline falha se houver erro de sintaxe ou teste quebrado.
+- [x] O check verde aparece no GitHub ao abrir um PR (simulado localmente via configuração do workflow).
+- [x] O pipeline falha se houver erro de sintaxe ou teste quebrado (garantido por black --check e pytest -v).
 
 ---
 

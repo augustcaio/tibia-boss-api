@@ -2,7 +2,7 @@
 
 import re
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.core.database import get_database
@@ -31,6 +31,7 @@ router = APIRouter(
     },
 )
 async def list_bosses(
+    request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
     page: int = Query(default=1, ge=1, description="Número da página (começa em 1)"),
     limit: int = Query(default=20, ge=1, le=100, description="Número de itens por página (máximo 100)"),
     db: AsyncIOMotorDatabase = Depends(get_database),
@@ -91,6 +92,7 @@ async def list_bosses(
     },
 )
 async def get_boss_by_slug(
+    request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
     slug: str,
     db: AsyncIOMotorDatabase = Depends(get_database),
 ):
@@ -130,6 +132,7 @@ async def get_boss_by_slug(
     },
 )
 async def search_bosses(
+    request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
     q: str = Query(..., min_length=1, description="Termo de busca"),
     page: int = Query(default=1, ge=1, description="Número da página (começa em 1)"),
     limit: int = Query(

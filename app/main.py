@@ -106,25 +106,25 @@ app = FastAPI(
     redoc_url=None,  # ReDoc desabilitado
 )
 
-    # Configurações de rate limiting (slowapi)
-    app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-    app.add_middleware(SlowAPIMiddleware)
+# Configurações de rate limiting (slowapi)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
-    # Middleware de hosts confiáveis
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=settings.allowed_hosts,
-    )
+# Middleware de hosts confiáveis
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.allowed_hosts,
+)
 
-    # Configuração CORS
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Em produção, especificar origens permitidas
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+# Configuração CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Em produção, especificar origens permitidas
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Sobrescreve a função openapi para usar versão 3.0.3
 app.openapi = custom_openapi

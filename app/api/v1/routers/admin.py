@@ -1,6 +1,6 @@
 """Rotas administrativas para sincronização manual do scraper."""
 
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request, status
 
 from app.core.config import settings
 from app.core.rate_limit import limiter
@@ -27,6 +27,7 @@ router = APIRouter(
     },
 )
 async def trigger_sync(
+    request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
     background_tasks: BackgroundTasks,
     x_admin_token: str = Header(..., alias="X-Admin-Token"),
 ):

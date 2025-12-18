@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo:latest
+    image: mongo:6.0
     container_name: tibia-boss-mongo
     ports:
       - "27017:27017"
@@ -8,6 +8,18 @@ services:
       - mongo_data:/data/db
     environment:
       - MONGO_INITDB_DATABASE=tibia_bosses
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: tibia-boss-api
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017/tibia_bosses}
+      - PORT=${PORT:-8000}
+    ports:
+      - "8000:8000"
     restart: unless-stopped
 
 volumes:

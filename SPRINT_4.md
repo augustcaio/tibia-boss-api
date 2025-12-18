@@ -11,7 +11,7 @@
 | -------------- | ----------------- |
 | **Prioridade** | 🔴 Alta (Blocker) |
 | **Estimativa** | 5 Story Points    |
-| **Status**     | ⏳ Planejada      |
+| **Status**     | 🚧 Em andamento   |
 
 ### Descrição
 
@@ -19,17 +19,17 @@ Criar a infraestrutura de container final. O Dockerfile deve ser otimizado para 
 
 ### Detalhes Técnicos
 
-- [ ] **Multi-Stage Build**
-  - [ ] `builder`: Instalar `poetry`, `gcc`, `libssl-dev`. Exportar `requirements.txt`.
-  - [ ] `final`: Usar base `python:3.11-slim`. Instalar dependências via `pip` (sem Poetry) para economizar espaço.
-- [ ] **Security**
-  - [ ] Criar usuário `appuser` (UID 1000). O container não pode rodar como root.
-  - [ ] `CMD`: Usar `sh -c` para garantir que variáveis de ambiente sejam expandidas.
-- [ ] **Docker Compose**
-  - [ ] Serviço `api`: Depende de `mongo`. Variáveis carregadas de `.env`.
-  - [ ] Serviço `mongo`: Volume persistente em `./data/db`.
-- [ ] **Ignore**
-  - [ ] Configurar `.dockerignore` (ignorar `.git`, `__pycache__`, `venv`, `tests`).
+- [x] **Multi-Stage Build**
+  - [x] `builder`: Instalar `poetry`, `gcc`, `libssl-dev`. Exportar `requirements.txt`.
+  - [x] `final`: Usar base `python:3.11-slim`. Instalar dependências via `pip` (sem Poetry) para economizar espaço.
+- [x] **Security**
+  - [x] Criar usuário `appuser` (UID 1000). O container não pode rodar como root.
+  - [x] `CMD`: Usar `sh -c` para garantir que variáveis de ambiente sejam expandidas.
+- [x] **Docker Compose**
+  - [x] Serviço `api`: Depende de `mongo`. Variáveis carregadas de `.env` (via variáveis de ambiente do Docker Compose).
+  - [x] Serviço `mongo`: Volume persistente em `./data/db`.
+- [x] **Ignore**
+  - [x] Configurar `.dockerignore` (ignorar `.git`, `__pycache__`, `venv`, `tests`).
 
 ### Definition of Done (DoD)
 

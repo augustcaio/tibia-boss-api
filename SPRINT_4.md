@@ -92,11 +92,11 @@ Implementar a atualização automática semanal e o trigger manual. Crucial: Imp
 
 ## 🎫 Task 4.3: Segurança e Rate Limiting
 
-| Campo          | Valor           |
-| -------------- | --------------- |
-| **Prioridade** | 🟡 Média        |
-| **Estimativa** | 3 Story Points  |
-| **Status**     | ✅ Concluída    |
+| Campo          | Valor          |
+| -------------- | -------------- |
+| **Prioridade** | 🟡 Média       |
+| **Estimativa** | 3 Story Points |
+| **Status**     | ✅ Concluída   |
 
 ### Descrição
 

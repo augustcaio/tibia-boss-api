@@ -11,7 +11,7 @@
 | -------------- | ----------------- |
 | **Prioridade** | 🔴 Alta (Blocker) |
 | **Estimativa** | 5 Story Points    |
-| **Status**     | 🚧 Em andamento   |
+| **Status**     | ✅ Concluída      |
 
 ### Descrição
 
@@ -33,9 +33,9 @@ Criar a infraestrutura de container final. O Dockerfile deve ser otimizado para 
 
 ### Definition of Done (DoD)
 
-- [ ] Imagem final < 500MB.
-- [ ] `docker exec -it <container> whoami` retorna `appuser`.
-- [ ] Aplicação conecta no Mongo via rede interna do Docker (`mongo:27017`).
+- [x] Imagem final < 500MB.
+- [x] `docker exec -it <container> whoami` retorna `appuser`.
+- [x] Aplicação conecta no Mongo via rede interna do Docker (`mongo:27017`).
 
 ---
 

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Configurações da aplicação."""
 
     # MongoDB
-    mongodb_url: str = "mongodb://localhost:27017"
+    mongodb_url: str = "mongodb://127.0.0.1:27017"
     database_name: str = "tibia_bosses"
 
     # Admin

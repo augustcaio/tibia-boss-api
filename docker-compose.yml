@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo:6.0
+    image: mongo:latest
     container_name: tibia-boss-mongo
     ports:
       - "27017:27017"

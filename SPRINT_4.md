@@ -92,11 +92,11 @@ Implementar a atualização automática semanal e o trigger manual. Crucial: Imp
 
 ## 🎫 Task 4.3: Segurança e Rate Limiting
 
-| Campo          | Valor          |
-| -------------- | -------------- |
-| **Prioridade** | 🟡 Média       |
-| **Estimativa** | 3 Story Points |
-| **Status**     | ⏳ Planejada   |
+| Campo          | Valor           |
+| -------------- | --------------- |
+| **Prioridade** | 🟡 Média        |
+| **Estimativa** | 3 Story Points  |
+| **Status**     | ✅ Concluída    |
 
 ### Descrição
 
@@ -104,22 +104,22 @@ Proteger a API contra abusos e configurar headers de proxy corretamente.
 
 ### Detalhes Técnicos
 
-- [ ] **Lib:** `slowapi`.
-- [ ] **Configuração base:**
-  - [ ] `limiter = Limiter(key_func=get_remote_address)`.
-  - [ ] `app.state.limiter = limiter`.
-  - [ ] Adicionar `CheckHostMiddleware` ou `TrustedHostMiddleware` se formos expor diretamente.
-- [ ] **Regras de Rate Limiting:**
-  - [ ] `@limiter.limit("60/minute")` nos endpoints `GET /bosses`.
-  - [ ] `@limiter.limit("20/minute")` na busca `GET /search`.
-  - [ ] `@limiter.limit("5/hour")` no `POST /admin/sync`.
-- [ ] **Proxy Fix:**
-  - [ ] Configurar `uvicorn` com `--proxy-headers` e `--forwarded-allow-ips='*'` no comando do Docker, senão o `get_remote_address` vai pegar sempre o IP do Docker (`172.x.x.x`) e bloquear todo mundo junto.
+- [x] **Lib:** `slowapi`.
+- [x] **Configuração base:**
+  - [x] `limiter = Limiter(key_func=get_remote_address)`.
+  - [x] `app.state.limiter = limiter`.
+  - [x] Adicionar `CheckHostMiddleware` ou `TrustedHostMiddleware` se formos expor diretamente.
+- [x] **Regras de Rate Limiting:**
+  - [x] `@limiter.limit("60/minute")` nos endpoints `GET /bosses`.
+  - [x] `@limiter.limit("20/minute")` na busca `GET /search`.
+  - [x] `@limiter.limit("5/hour")` no `POST /admin/sync`.
+- [x] **Proxy Fix:**
+  - [x] Configurar `uvicorn` com `--proxy-headers` e `--forwarded-allow-ips='*'` no comando do Docker, senão o `get_remote_address` vai pegar sempre o IP do Docker (`172.x.x.x`) e bloquear todo mundo junto.
 
 ### Definition of Done (DoD)
 
-- [ ] Teste de carga local bloqueia após o limite (HTTP 429).
-- [ ] Headers `X-RateLimit-*` presentes na resposta.
+- [x] Teste de carga local bloqueia após o limite (HTTP 429).
+- [x] Headers `X-RateLimit-*` presentes na resposta.
 
 ---
 

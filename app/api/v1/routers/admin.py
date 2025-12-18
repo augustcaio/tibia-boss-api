@@ -3,6 +3,7 @@
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
 
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.services.scraper_job import run_scraper_job
 
 router = APIRouter(
@@ -11,6 +12,7 @@ router = APIRouter(
 )
 
 
+@limiter.limit("5/hour")
 @router.post(
     "/sync",
     status_code=status.HTTP_202_ACCEPTED,

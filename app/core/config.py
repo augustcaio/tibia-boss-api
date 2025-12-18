@@ -1,5 +1,7 @@
 """Configurações da aplicação usando Pydantic Settings."""
 
+from typing import List
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +14,9 @@ class Settings(BaseSettings):
 
     # Admin
     admin_secret: str = "changeme"
+
+    # Segurança / Hosts confiáveis
+    allowed_hosts: List[str] = ["*"]
 
     model_config = SettingsConfigDict(
         env_file=".env",

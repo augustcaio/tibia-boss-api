@@ -52,6 +52,8 @@ USER appuser
 EXPOSE 8000
 
 # Usar sh -c para permitir expansão de variáveis de ambiente (ex: PORT)
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Inclui --proxy-headers e --forwarded-allow-ips='*' para que o slowapi
+# consiga obter o IP real do cliente atrás de proxies / Docker.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
 
 

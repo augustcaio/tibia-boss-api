@@ -158,3 +158,20 @@ def test_list_bosses_invalid_page(client):
 
     assert response.status_code == 422
 
+
+def test_search_bosses_rate_limit_headers_and_blocking(client):
+    """Testa que o rate limiting aplica headers e bloqueia após o limite."""
+    # Primeira requisição deve passar e conter headers de rate limit
+    response = client.get("/api/v1/bosses/search?q=Test")
+    assert response.status_code == 200
+    assert "X-RateLimit-Limit" in response.headers
+    assert "X-RateLimit-Remaining" in response.headers
+
+    # Limite configurado para 20/minute → a 21ª deve retornar 429
+    last_status = None
+    for _ in range(21):
+        resp = client.get("/api/v1/bosses/search?q=Test")
+        last_status = resp.status_code
+
+    assert last_status == 429
+

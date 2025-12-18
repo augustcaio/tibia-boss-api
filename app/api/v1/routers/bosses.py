@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.core.database import get_database
+from app.core.rate_limit import limiter
 from app.db.repository import BossRepository
 from app.models.boss import BossModel
 from app.schemas.boss import BossShortSchema
@@ -17,6 +18,7 @@ router = APIRouter(
 )
 
 
+@limiter.limit("60/minute")
 @router.get(
     "",
     response_model=PaginatedResponse[BossShortSchema],
@@ -114,6 +116,7 @@ async def get_boss_by_slug(
     return boss
 
 
+@limiter.limit("20/minute")
 @router.get(
     "/search",
     response_model=PaginatedResponse[BossShortSchema],

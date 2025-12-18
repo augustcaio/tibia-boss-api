@@ -5,10 +5,17 @@ from contextlib import asynccontextmanager
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.v1.routers import admin, bosses, health
 from app.core.config import settings
 from app.core.database import close_database, init_database
+from app.core.rate_limit import (
+    RateLimitExceeded,
+    SlowAPIMiddleware,
+    _rate_limit_exceeded_handler,
+    limiter,
+)
 from app.services.scraper_job import run_scraper_job
 
 # Scheduler global para o processo FastAPI
@@ -99,17 +106,28 @@ app = FastAPI(
     redoc_url=None,  # ReDoc desabilitado
 )
 
+    # Configurações de rate limiting (slowapi)
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
+
+    # Middleware de hosts confiáveis
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=settings.allowed_hosts,
+    )
+
+    # Configuração CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Em produção, especificar origens permitidas
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 # Sobrescreve a função openapi para usar versão 3.0.3
 app.openapi = custom_openapi
-
-# Configuração CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar origens permitidas
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Inclui os routers
 app.include_router(health.router, prefix="/api/v1")

@@ -15,6 +15,7 @@ pydantic = "^2.5.3"
 pydantic-settings = "^2.1.0"
 httpx = "^0.26.0"
 mwparserfromhell = "^0.6.5"
+apscheduler = "^3.10.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

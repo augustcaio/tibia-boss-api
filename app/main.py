@@ -2,12 +2,17 @@
 
 from contextlib import asynccontextmanager
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.routers import bosses, health
+from app.api.v1.routers import admin, bosses, health
 from app.core.config import settings
 from app.core.database import close_database, init_database
+from app.services.scraper_job import run_scraper_job
+
+# Scheduler global para o processo FastAPI
+scheduler = AsyncIOScheduler(timezone="UTC")
 
 
 @asynccontextmanager
@@ -16,15 +21,32 @@ async def lifespan(app: FastAPI):
     Lifespan context manager para inicializar e fechar recursos.
 
     - Inicializa conexão MongoDB e cria índices
-    - Fecha conexão ao encerrar
+    - Configura o APScheduler com job semanal
+    - Fecha conexão e desliga o scheduler ao encerrar
     """
     # Startup: Inicializa MongoDB e cria índices
     await init_database(
         mongodb_url=settings.mongodb_url,
         database_name=settings.database_name,
     )
+
+    # Configura job semanal de sincronização (Mongo Mutex em run_scraper_job)
+    scheduler.add_job(
+        run_scraper_job,
+        trigger="cron",
+        day_of_week="tue",
+        hour=10,
+        timezone="UTC",
+        id="weekly_scraper_sync",
+        replace_existing=True,
+        max_instances=1,
+    )
+    scheduler.start()
+
     yield
-    # Shutdown: Fecha conexão MongoDB
+
+    # Shutdown: encerra scheduler e fecha conexão MongoDB
+    scheduler.shutdown(wait=False)
     await close_database()
 
 
@@ -92,6 +114,7 @@ app.add_middleware(
 # Inclui os routers
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(bosses.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
 
 
 @app.get("/")

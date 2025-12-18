@@ -45,7 +45,7 @@ Criar a infraestrutura de container final. O Dockerfile deve ser otimizado para 
 | -------------- | ---------------------------- |
 | **Prioridade** | 🔴 Alta (Risco Arquitetural) |
 | **Estimativa** | 8 Story Points               |
-| **Status**     | ⏳ Planejada                 |
+| **Status**     | ✅ Concluída                 |
 
 ### Descrição
 
@@ -53,10 +53,10 @@ Implementar a atualização automática semanal e o trigger manual. Crucial: Imp
 
 ### Detalhes Técnicos
 
-- [ ] **Lock System**
+- [x] **Lock System**
 
-  - [ ] Criar collection `system_jobs`.
-  - [ ] Documento de controle base:
+  - [x] Criar collection `system_jobs`.
+  - [x] Documento de controle base:
 
     ```json
     {
@@ -67,26 +67,26 @@ Implementar a atualização automática semanal e o trigger manual. Crucial: Imp
     }
     ```
 
-  - [ ] Antes de rodar, o código deve tentar fazer um `find_one_and_update`:
+  - [x] Antes de rodar, o código deve tentar fazer um `find_one_and_update`:
     - **Query:** `{ "_id": "scraper_lock", "status": "idle" }`
     - **Update:** `{ "$set": { "status": "running", "locked_at": now } }`
-  - [ ] Se o update falhar (retornar `null`/`None`), significa que já tem alguém rodando → abortar silenciosamente.
-  - [ ] No `finally` (sucesso ou erro), dar release:
+  - [x] Se o update falhar (retornar `null`/`None`), significa que já tem alguém rodando → abortar silenciosamente.
+  - [x] No `finally` (sucesso ou erro), dar release:
     - **Update:** `{ "$set": { "status": "idle" } }`.
 
-- [ ] **APScheduler**
-  - [ ] Configurar `AsyncIOScheduler` no lifespan do FastAPI.
-  - [ ] Cron: `day_of_week='tue'`, `hour=10`, `timezone='UTC'`.
-- [ ] **Endpoint Admin**
-  - [ ] `POST /api/v1/admin/sync`.
-  - [ ] Header: `X-Admin-Token` (comparar com `settings.ADMIN_SECRET`).
-  - [ ] Chamar a mesma função do Scheduler (que respeita o Lock).
-  - [ ] Usar `BackgroundTasks` para não travar o request.
+- [x] **APScheduler**
+  - [x] Configurar `AsyncIOScheduler` no lifespan do FastAPI.
+  - [x] Cron: `day_of_week='tue'`, `hour=10`, `timezone='UTC'`.
+- [x] **Endpoint Admin**
+  - [x] `POST /api/v1/admin/sync`.
+  - [x] Header: `X-Admin-Token` (comparar com `settings.ADMIN_SECRET`).
+  - [x] Chamar a mesma função do Scheduler (que respeita o Lock).
+  - [x] Usar `BackgroundTasks` para não travar o request.
 
 ### Definition of Done (DoD)
 
-- [ ] Se o endpoint `/api/v1/admin/sync` for disparado 5 vezes seguidas rapidamente, o scraper roda apenas 1 vez (logs confirmam `"Lock acquired"` vs `"Job already running"`).
-- [ ] Trigger agendado via APScheduler funcionando.
+- [x] Se o endpoint `/api/v1/admin/sync` for disparado 5 vezes seguidas rapidamente, o scraper roda apenas 1 vez (logs confirmam `"Lock acquired"` vs `"Job already running"`).
+- [x] Trigger agendado via APScheduler funcionando.
 
 ---
 

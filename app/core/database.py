@@ -55,6 +55,7 @@ async def init_database(
     try:
         # Cria o cliente MongoDB usando o bundle de CAs do certifi para evitar
         # falhas de handshake TLS em ambientes com cadeia de certificados mínima.
+        
         # Para conexões mongodb+srv://, o TLS é automático, mas precisamos garantir
         # que os certificados CA estejam disponíveis.
         client_options = {
@@ -62,12 +63,8 @@ async def init_database(
             "serverSelectionTimeoutMS": 30000,  # 30 segundos
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000,
+            "tls": True, # Força TLS explicitamente
         }
-        
-        # Se for conexão mongodb+srv://, adiciona TLS explícito
-        if mongodb_url.startswith("mongodb+srv://"):
-            client_options["tls"] = True
-            client_options["tlsAllowInvalidCertificates"] = False
         
         _client = AsyncIOMotorClient(mongodb_url, **client_options)
         _database = _client[database_name]

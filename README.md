@@ -124,8 +124,6 @@ A API está disponível em `http://localhost:8000` após iniciar o servidor.
 - **Swagger UI:** `http://localhost:8000/docs`
 - **OpenAPI JSON:** `http://localhost:8000/openapi.json`
 
-Para mais detalhes, consulte o arquivo [ROUTES.md](ROUTES.md).
-
 ## Testes
 
 ```bash

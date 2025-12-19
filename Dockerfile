@@ -1,59 +1,34 @@
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Evita .pyc e força stdout/stderr sem buffer
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Instala certificados de sistema e curl para health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Dependências de sistema necessárias para compilar pacotes Python
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libssl-dev curl ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+# Copia apenas o requirements para aproveitar cache
+COPY requirements.txt .
 
-# Instala Poetry para exportar requirements a partir do pyproject
-RUN curl -sSL https://install.python-poetry.org | python - --version 1.8.3
-ENV POETRY_HOME="/root/.local"
-ENV PATH="$POETRY_HOME/bin:$PATH"
-
-COPY pyproject.toml .
-
-# Exporta requirements.txt a partir do pyproject (sem extras/dev)
-RUN poetry export -f requirements.txt --without-hashes -o /tmp/requirements.txt
-
-
-FROM python:3.11-slim AS final
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-WORKDIR /app
-
-# Criar usuário não-root (UID 1000)
-RUN groupadd -r appuser && \
-    useradd -r -g appuser -u 1000 appuser
-
-# Instala apenas dependências de runtime
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libssl-dev ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /tmp/requirements.txt /app/requirements.txt
+# Instala dependências e garante certifi/uvicorn disponíveis
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /app/requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir certifi uvicorn
 
-# Copia o código da aplicação
-COPY . /app
+# Copia o restante do código
+COPY . .
 
-# Ajusta permissões para o usuário de aplicação
-RUN chown -R appuser:appuser /app
-
+# Cria usuário não-root
+RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
 
-# Usar sh -c para permitir expansão de variáveis de ambiente (ex: PORT)
-# Inclui --proxy-headers e --forwarded-allow-ips='*' para que o slowapi
-# consiga obter o IP real do cliente atrás de proxies / Docker.
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
+# Comando de execução explícito (porta configurável via PORT)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
 
 

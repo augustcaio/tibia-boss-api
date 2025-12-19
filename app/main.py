@@ -165,3 +165,9 @@ async def root():
     """Endpoint raiz."""
     return {"message": "Tibia Boss API", "version": "0.1.0"}
 
+
+@app.head("/")
+async def root_head():
+    """HEAD para health checks que não precisam de corpo."""
+    return None
+

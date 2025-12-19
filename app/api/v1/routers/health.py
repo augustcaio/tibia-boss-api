@@ -1,9 +1,8 @@
 """Rotas de health check."""
 
-from fastapi import APIRouter, Depends
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from fastapi import APIRouter
 
-from app.core.database import get_database
+from app.core import database as dbmod
 
 router = APIRouter(
     prefix="/health",
@@ -29,9 +28,12 @@ async def health_check(db: AsyncIOMotorDatabase = Depends(get_database)):
     Returns:
         Dict com status da API e conexão com o banco
     """
+    client = getattr(dbmod, "_client", None)
+    if client is None:
+        return {"status": "ok", "db": "disconnected", "error": "db_not_initialized"}
+
     try:
-        # Testa conexão com o banco
-        await db.client.admin.command("ping")
+        await client.admin.command("ping")
         return {"status": "ok", "db": "connected"}
     except Exception as e:
         return {"status": "ok", "db": "disconnected", "error": str(e)}

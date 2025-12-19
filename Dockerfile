@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Dependências de sistema necessárias para compilar pacotes Python
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libssl-dev curl && \
+    apt-get install -y --no-install-recommends gcc libssl-dev curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Instala Poetry para exportar requirements a partir do pyproject
@@ -34,7 +34,7 @@ RUN groupadd -r appuser && \
 
 # Instala apenas dependências de runtime
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libssl-dev && \
+    apt-get install -y --no-install-recommends libssl-dev ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /tmp/requirements.txt /app/requirements.txt

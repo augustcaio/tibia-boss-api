@@ -1,6 +1,8 @@
 """Aplicação FastAPI principal."""
 
 from contextlib import asynccontextmanager
+import logging
+import os
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
@@ -20,6 +22,7 @@ from app.services.scraper_job import run_scraper_job
 
 # Scheduler global para o processo FastAPI
 scheduler = AsyncIOScheduler(timezone="UTC")
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -33,30 +36,47 @@ async def lifespan(app: FastAPI):
     """
     # Startup: Inicializa MongoDB e cria índices
     print("🔌 Conectando ao MongoDB...")
-    
-    await init_database(
-        mongodb_url=settings.mongodb_url,
-        database_name=settings.database_name,
+    allow_start_without_db = os.getenv("ALLOW_START_WITHOUT_DB", "").strip().lower() in (
+        "",
+        "1",
+        "true",
+        "yes",
+        "on",
     )
-    print("✅ MongoDB conectado com sucesso!")
+
+    db_ready = False
+    try:
+        await init_database(
+            mongodb_url=settings.mongodb_url,
+            database_name=settings.database_name,
+        )
+        db_ready = True
+        print("✅ MongoDB conectado com sucesso!")
+    except Exception:
+        logger.exception("Falha ao conectar ao MongoDB durante o startup.")
+        if not allow_start_without_db:
+            raise
+        print("⚠️ MongoDB indisponível. API iniciará mesmo assim (modo degradado).")
 
     # Configura job semanal de sincronização (Mongo Mutex em run_scraper_job)
-    scheduler.add_job(
-        run_scraper_job,
-        trigger="cron",
-        day_of_week="tue",
-        hour=10,
-        timezone="UTC",
-        id="weekly_scraper_sync",
-        replace_existing=True,
-        max_instances=1,
-    )
-    scheduler.start()
+    if db_ready:
+        scheduler.add_job(
+            run_scraper_job,
+            trigger="cron",
+            day_of_week="tue",
+            hour=10,
+            timezone="UTC",
+            id="weekly_scraper_sync",
+            replace_existing=True,
+            max_instances=1,
+        )
+        scheduler.start()
 
     yield
 
     # Shutdown: encerra scheduler e fecha conexão MongoDB
-    scheduler.shutdown(wait=False)
+    if scheduler.running:
+        scheduler.shutdown(wait=False)
     await close_database()
 
 

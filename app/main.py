@@ -137,7 +137,9 @@ app.add_middleware(SlowAPIMiddleware)
 # Middleware de hosts confiáveis
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=settings.allowed_hosts,
+    # Permite qualquer host para não bloquear health checks internos (ex.: Render).
+    # Em produção, ajuste para a lista específica de domínios confiáveis.
+    allowed_hosts=["*"],
 )
 
 # Configuração CORS

@@ -2,6 +2,7 @@
 
 from typing import List
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,7 +10,10 @@ class Settings(BaseSettings):
     """Configurações da aplicação."""
 
     # MongoDB
-    mongodb_url: str = "mongodb://127.0.0.1:27017"
+    mongodb_url: str = Field(
+        default="mongodb://127.0.0.1:27017",
+        validation_alias="MONGODB_URL"
+    )
     database_name: str = "tibia_bosses"
 
     # Admin

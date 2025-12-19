@@ -3,6 +3,7 @@
 import logging
 from typing import Optional
 
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ _client: Optional[AsyncIOMotorClient] = None
 def get_database() -> AsyncIOMotorDatabase:
     """
     Retorna a instância do banco de dados.
-    
+
     Esta função é usada como dependência do FastAPI para injeção de dependência.
 
     Raises:
@@ -25,7 +26,8 @@ def get_database() -> AsyncIOMotorDatabase:
         Instância do AsyncIOMotorDatabase
     """
     if _database is None:
-        raise RuntimeError("Database não foi inicializado. Chame init_database() primeiro.")
+        raise RuntimeError(
+            "Database não foi inicializado. Chame init_database() primeiro.")
     return _database
 
 
@@ -46,12 +48,17 @@ async def init_database(
     global _database, _client
 
     if _database is not None:
-        logger.warning("Database já foi inicializado. Retornando instância existente.")
+        logger.warning(
+            "Database já foi inicializado. Retornando instância existente.")
         return _database
 
     try:
-        # Cria o cliente MongoDB
-        _client = AsyncIOMotorClient(mongodb_url)
+        # Cria o cliente MongoDB usando o bundle de CAs do certifi para evitar
+        # falhas de handshake TLS em ambientes com cadeia de certificados mínima.
+        _client = AsyncIOMotorClient(
+            mongodb_url,
+            tlsCAFile=certifi.where(),
+        )
         _database = _client[database_name]
 
         # Testa a conexão
@@ -98,4 +105,3 @@ async def close_database():
         _client = None
         _database = None
         logger.info("Conexão com MongoDB fechada")
-

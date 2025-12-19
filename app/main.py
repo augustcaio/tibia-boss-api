@@ -84,9 +84,9 @@ def custom_openapi():
     """Gera schema OpenAPI 3.0.3 com servidor padrão."""
     if app.openapi_schema:
         return app.openapi_schema
-    
+
     from fastapi.openapi.utils import get_openapi
-    
+
     openapi_schema = get_openapi(
         title=app.title,
         version=app.version,
@@ -98,7 +98,8 @@ def custom_openapi():
     # Adiciona servidor padrão se não existir
     if "servers" not in openapi_schema or not openapi_schema.get("servers"):
         openapi_schema["servers"] = [
-            {"url": "http://localhost:8000", "description": "Servidor local de desenvolvimento"}
+            {"url": "http://localhost:8000",
+                "description": "Servidor local de desenvolvimento"}
         ]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
@@ -170,4 +171,3 @@ async def root():
 async def root_head():
     """HEAD para health checks que não precisam de corpo."""
     return None
-

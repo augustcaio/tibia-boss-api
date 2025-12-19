@@ -60,10 +60,11 @@ async def init_database(
         # que os certificados CA estejam disponíveis.
         client_options = {
             "tlsCAFile": certifi.where(),
-            "serverSelectionTimeoutMS": 30000,  # 30 segundos
+            "tls": True,  # Força TLS explicitamente
+            "tlsAllowInvalidCertificates": False,
+            "serverSelectionTimeoutMS": 5000,  # Falha rápido (5s)
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000,
-            "tls": True, # Força TLS explicitamente
         }
         
         _client = AsyncIOMotorClient(mongodb_url, **client_options)

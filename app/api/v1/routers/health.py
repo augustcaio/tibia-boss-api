@@ -1,8 +1,10 @@
 """Rotas de health check."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.core import database as dbmod
+from app.core.database import get_database
 
 router = APIRouter(
     prefix="/health",

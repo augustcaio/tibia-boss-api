@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     admin_secret: str = "changeme"
 
     # Segurança / Hosts confiáveis
-    allowed_hosts: List[str] = ["*"]
+    allowed_hosts: List[str] = ["localhost", "127.0.0.1", ".onrender.com"]
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -26,4 +26,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

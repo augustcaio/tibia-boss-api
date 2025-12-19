@@ -31,17 +31,14 @@ async def lifespan(app: FastAPI):
     - Configura o APScheduler com job semanal
     - Fecha conexão e desliga o scheduler ao encerrar
     """
-    # Debug: FORCE PRINT - mostra qual URL está sendo usada
-    print("=" * 80)
-    print(f"🚀 LIFESPAN STARTUP - Conectando ao MongoDB...")
-    print(f"🔍 URL: {settings.mongodb_url[:60]}...")
-    print("=" * 80)
-    
     # Startup: Inicializa MongoDB e cria índices
+    print("🔌 Conectando ao MongoDB...")
+    
     await init_database(
         mongodb_url=settings.mongodb_url,
         database_name=settings.database_name,
     )
+    print("✅ MongoDB conectado com sucesso!")
 
     # Configura job semanal de sincronização (Mongo Mutex em run_scraper_job)
     scheduler.add_job(

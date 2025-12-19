@@ -9,8 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Configurações da aplicação."""
 
-    # MongoDB
-    mongodb_url: str = "mongodb://127.0.0.1:27017"
+    # MongoDB - aceita MONGODB_URL ou MONGO_URL
+    mongodb_url: str = os.environ.get("MONGODB_URL") or os.environ.get("MONGO_URL") or "mongodb://127.0.0.1:27017"
     database_name: str = "tibia_bosses"
 
     # Admin
@@ -27,44 +27,13 @@ class Settings(BaseSettings):
     )
 
 
-# ===== DEBUG CRÍTICO: FORCE PRINT =====
-# Força impressão direta no stdout (não usa logger que pode ser filtrado)
-print("=" * 80)
-print("🔍 DEBUG: Verificando variáveis de ambiente")
-print("=" * 80)
-
-# Tenta todas as variações possíveis
-mongodb_url_variants = [
-    "MONGODB_URL",
-    "mongodb_url", 
-    "MONGO_URL",
-    "MONGODB_URI",
-    "DATABASE_URL",
-]
-
-for variant in mongodb_url_variants:
-    value = os.environ.get(variant)
-    if value:
-        # Mascara a senha para não expor nos logs
-        masked = value
-        if "@" in value and "://" in value:
-            protocol = value.split("://")[0]
-            rest = value.split("://")[1]
-            if "@" in rest:
-                creds = rest.split("@")[0]
-                host_part = rest.split("@")[1]
-                masked = f"{protocol}://*****:*****@{host_part}"
-        print(f"✅ {variant} = {masked}")
-    else:
-        print(f"❌ {variant} = (não definida)")
-
-print("=" * 80)
-
 # Cria instância das configurações
 settings = Settings()
 
-# Mostra o que foi carregado
-print(f"📌 Settings carregados:")
-print(f"   mongodb_url: {settings.mongodb_url[:50]}...")
-print(f"   database_name: {settings.database_name}")
+# Debug: mostra o que foi carregado
+print("=" * 80)
+print("🚀 Tibia Boss API - Inicializando")
+print("=" * 80)
+print(f"✅ MongoDB URL: {settings.mongodb_url[:60]}...")
+print(f"✅ Database: {settings.database_name}")
 print("=" * 80)

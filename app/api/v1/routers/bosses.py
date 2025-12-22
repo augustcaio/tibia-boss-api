@@ -81,45 +81,6 @@ async def list_bosses(
     )
 
 
-@router.get(
-    "/{slug}",
-    response_model=BossModel,
-    summary="Obter detalhes de um boss",
-    description="Retorna os detalhes completos de um boss pelo slug.",
-    responses={
-        200: {"description": "Boss encontrado e retornado com sucesso"},
-        404: {"description": "Boss não encontrado"},
-        422: {"description": "Parâmetros de validação inválidos"},
-        500: {"description": "Erro interno do servidor"},
-    },
-)
-async def get_boss_by_slug(
-    request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
-    slug: str,
-    db: AsyncIOMotorDatabase = Depends(get_database),
-):
-    """
-    Retorna os detalhes completos de um boss pelo slug.
-
-    Args:
-        slug: Slug do boss (ex: "morgaroth")
-        db: Instância do banco de dados (injetada via Dependency Injection)
-
-    Returns:
-        Detalhes completos do boss
-
-    Raises:
-        HTTPException: 404 se o boss não for encontrado
-    """
-    repository = BossRepository(db)
-    boss = await repository.find_by_slug(slug)
-
-    if boss is None:
-        raise HTTPException(status_code=404, detail="Boss not found")
-
-    return boss
-
-
 @limiter.limit("20/minute")
 @router.get(
     "/search",
@@ -194,3 +155,42 @@ async def search_bosses(
         size=len(items),
         pages=pages,
     )
+
+
+@router.get(
+    "/{slug}",
+    response_model=BossModel,
+    summary="Obter detalhes de um boss",
+    description="Retorna os detalhes completos de um boss pelo slug.",
+    responses={
+        200: {"description": "Boss encontrado e retornado com sucesso"},
+        404: {"description": "Boss não encontrado"},
+        422: {"description": "Parâmetros de validação inválidos"},
+        500: {"description": "Erro interno do servidor"},
+    },
+)
+async def get_boss_by_slug(
+    request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
+    slug: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+):
+    """
+    Retorna os detalhes completos de um boss pelo slug.
+
+    Args:
+        slug: Slug do boss (ex: "morgaroth")
+        db: Instância do banco de dados (injetada via Dependency Injection)
+
+    Returns:
+        Detalhes completos do boss
+
+    Raises:
+        HTTPException: 404 se o boss não for encontrado
+    """
+    repository = BossRepository(db)
+    boss = await repository.find_by_slug(slug)
+
+    if boss is None:
+        raise HTTPException(status_code=404, detail="Boss not found")
+
+    return boss

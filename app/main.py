@@ -23,6 +23,7 @@ from app.services.scraper_job import run_scraper_job
 # Scheduler global para o processo FastAPI
 scheduler = AsyncIOScheduler(timezone="UTC")
 logger = logging.getLogger(__name__)
+db_connected: bool = False
 
 
 @asynccontextmanager
@@ -51,12 +52,20 @@ async def lifespan(app: FastAPI):
             database_name=settings.database_name,
         )
         db_ready = True
+        app.state.db_connected = True
         print("✅ MongoDB conectado com sucesso!")
     except Exception:
+        # Modo degradado (Circuit Breaker / Soft Startup):
+        # - Não derruba o processo caso o Mongo esteja indisponível.
+        # - Marca o estado da aplicação como desconectado.
+        # - Em produção, rotas que dependem de DB devolverão 503.
         logger.exception("Falha ao conectar ao MongoDB durante o startup.")
+        app.state.db_connected = False
         if not allow_start_without_db:
+            # Mantém opção de falhar duro via variável de ambiente,
+            # mas por padrão a API sobe em modo degradado.
             raise
-        print("⚠️ MongoDB indisponível. API iniciará mesmo assim (modo degradado).")
+        print("⚠️ MongoDB indisponível. API iniciará em modo degradado (sem DB).")
 
     # Configura job semanal de sincronização (Mongo Mutex em run_scraper_job)
     if db_ready:

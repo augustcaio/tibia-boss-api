@@ -4,6 +4,7 @@ import logging
 from typing import Optional
 
 import certifi
+from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 logger = logging.getLogger(__name__)
@@ -20,14 +21,18 @@ def get_database() -> AsyncIOMotorDatabase:
     Esta função é usada como dependência do FastAPI para injeção de dependência.
 
     Raises:
-        RuntimeError: Se o banco não foi inicializado
+        HTTPException: 503 se o banco não foi inicializado ou está indisponível
 
     Returns:
         Instância do AsyncIOMotorDatabase
     """
     if _database is None:
-        raise RuntimeError(
-            "Database não foi inicializado. Chame init_database() primeiro.")
+        # Em vez de derrubar o processo com RuntimeError, retornamos 503
+        # para que as rotas que dependem de DB entrem em modo degradado.
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database temporarily unavailable. Please try again later.",
+        )
     return _database
 
 

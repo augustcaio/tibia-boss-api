@@ -155,7 +155,6 @@ Arquivos disponíveis:
 ```bash
 # 1. Subir o MongoDB
 docker compose up -d
-
 # 2. Ativar ambiente virtual
 source .venv/bin/activate  # ou poetry shell
 
@@ -165,6 +164,53 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 # 4. Acessar documentação
 # http://localhost:8000/docs
 ```
+
+## Troubleshooting Production
+
+### Diagnóstico de DNS/TLS com `debug_network.py`
+
+Em ambiente de produção (ex.: Render), rode dentro do container:
+
+```bash
+python debug_network.py
+```
+
+O script vai:
+
+- Resolver o host do MongoDB (a partir de `MONGODB_URL`/`MONGO_URL` ou `--host`)  
+- Testar:
+  - **DNS**: `socket.gethostbyname(host)`  
+  - **TLS**: handshake com `ssl` usando `certifi.where()`  
+
+Saída esperada:
+
+- **DNS falhando** → mensagem do tipo `❌ DNS FALHOU` (problema de resolução / NXDOMAIN).  
+- **TLS falhando** → `✅ DNS OK` mas `❌ TLS FALHOU` (problema de certificado / cadeia / SNI).  
+
+### Connection String Legacy (`mongodb://` sem SRV)
+
+Se o cluster estiver no MongoDB Atlas e houver problemas com `mongodb+srv://`, use a string **legacy**:
+
+1. No Atlas, vá em **Connect → Drivers → Python 3.4+**.  
+2. Copie a connection string no formato `mongodb://...` (sem `+srv`, com os hosts explícitos).  
+3. Atualize a variável de ambiente no provider (ex.: Render):
+   - `MONGO_URL` **ou** `MONGODB_URL` com a nova string `mongodb://...`.  
+
+O código da aplicação já está preparado para:
+
+- Usar TLS com `certifi` para URLs Atlas (`mongodb+srv://` ou contendo `mongodb.net`).  
+- Não forçar TLS para Mongo local (ex.: `mongodb://mongo:27017/tibia_bosses`).  
+
+### Modo Degradado e Respostas 503
+
+Para evitar que a API caia quando o MongoDB estiver indisponível:
+
+- No startup, se o banco não conectar, a API entra em **modo degradado** (soft startup):
+  - A rota `/` continua respondendo **200**.  
+  - Rotas que dependem de DB (ex.: `/api/v1/bosses`) retornam **503 Service Unavailable**.  
+- A variável `ALLOW_START_WITHOUT_DB` controla se o processo pode subir mesmo sem banco:
+  - Vaziu/`1`/`true` → sobe em modo degradado (recomendado para produção).  
+  - Outro valor → falha duro no startup (útil para ambientes de debug).  
 
 ## Licença
 

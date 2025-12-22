@@ -49,24 +49,41 @@ async def init_database(
 
     if _database is not None:
         logger.warning(
-            "Database já foi inicializado. Retornando instância existente.")
+            "Database já foi inicializado. Retornando instância existente."
+        )
         return _database
 
     try:
-        # Cria o cliente MongoDB usando o bundle de CAs do certifi para evitar
-        # falhas de handshake TLS em ambientes com cadeia de certificados mínima.
-        
-        # Para conexões mongodb+srv://, o TLS é automático, mas precisamos garantir
-        # que os certificados CA estejam disponíveis.
+        # Cria o cliente MongoDB.
+        #
+        # Regras:
+        # - Para clusters Atlas (URLs contendo "mongodb.net" ou esquema "mongodb+srv://"),
+        #   habilitamos TLS explicitamente e usamos o bundle de CAs do certifi para
+        #   evitar falhas de handshake em ambientes com cadeia mínima.
+        # - Para Mongo local (ex.: docker compose ou desenvolvimento), não forçamos TLS,
+        #   permitindo o uso da connection string simples `mongodb://mongo:27017/...`.
+        #
+        # Isso garante compatibilidade com a connection string "legacy" `mongodb://`
+        # copiada do Atlas (Drivers Python 3.4+), conforme a task 5.1 da sprint.
+        is_atlas = mongodb_url.startswith(
+            "mongodb+srv://") or "mongodb.net" in mongodb_url
+
         client_options = {
-            "tlsCAFile": certifi.where(),
-            "tls": True,  # Força TLS explicitamente
-            "tlsAllowInvalidCertificates": False,
             "serverSelectionTimeoutMS": 5000,  # Falha rápido (5s)
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000,
         }
-        
+
+        if is_atlas:
+            # Mantém tlsCAFile=certifi.where() para Atlas, sem parâmetros exóticos.
+            client_options.update(
+                {
+                    "tlsCAFile": certifi.where(),
+                    "tls": True,
+                    "tlsAllowInvalidCertificates": False,
+                }
+            )
+
         _client = AsyncIOMotorClient(mongodb_url, **client_options)
         _database = _client[database_name]
 

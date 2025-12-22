@@ -3,7 +3,6 @@
 import logging
 from typing import Optional
 
-import certifi
 from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
@@ -18,17 +17,10 @@ def get_database() -> AsyncIOMotorDatabase:
     """
     Retorna a instância do banco de dados.
 
-    Esta função é usada como dependência do FastAPI para injeção de dependência.
-
     Raises:
         HTTPException: 503 se o banco não foi inicializado ou está indisponível
-
-    Returns:
-        Instância do AsyncIOMotorDatabase
     """
     if _database is None:
-        # Em vez de derrubar o processo com RuntimeError, retornamos 503
-        # para que as rotas que dependem de DB entrem em modo degradado.
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Database temporarily unavailable. Please try again later.",
@@ -42,13 +34,6 @@ async def init_database(
 ) -> AsyncIOMotorDatabase:
     """
     Inicializa a conexão com o MongoDB e cria os índices.
-
-    Args:
-        mongodb_url: URL de conexão do MongoDB (padrão: mongodb://localhost:27017)
-        database_name: Nome do banco de dados (padrão: tibia_bosses)
-
-    Returns:
-        Instância do AsyncIOMotorDatabase
     """
     global _database, _client
 
@@ -56,42 +41,33 @@ async def init_database(
         logger.warning("Database já foi inicializado. Retornando instância existente.")
         return _database
 
-    try:
-        # Cria o cliente MongoDB.
-        #
-        # Regras:
-        # - Para clusters Atlas (URLs contendo "mongodb.net" ou esquema "mongodb+srv://"),
-        #   habilitamos TLS explicitamente e usamos o bundle de CAs do certifi para
-        #   evitar falhas de handshake em ambientes com cadeia mínima.
-        # - Para Mongo local (ex.: docker compose ou desenvolvimento), não forçamos TLS,
-        #   permitindo o uso da connection string simples `mongodb://mongo:27017/...`.
-        #
-        # Isso garante compatibilidade com a connection string "legacy" `mongodb://`
-        # copiada do Atlas (Drivers Python 3.4+), conforme a task 5.1 da sprint.
-        is_atlas = mongodb_url.startswith("mongodb+srv://") or "mongodb.net" in mongodb_url
+    logger.info("🔌 Tentativa de conexão 'Insegura' (Bypass SSL)...")
 
+    try:
+        # ⚠️ MODO DE DIAGNÓSTICO:
+        # Desativamos a verificação de certificados e hostnames para isolar
+        # se o problema no Render é a cadeia de confiança ou o protocolo.
         client_options = {
-            "serverSelectionTimeoutMS": 5000,  # Falha rápido (5s)
+            "serverSelectionTimeoutMS": 5000,
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000,
+            "tls": True,
+            "tlsAllowInvalidCertificates": True,
+            "tlsAllowInvalidHostnames": True,
         }
 
-        if is_atlas:
-            # Mantém tlsCAFile=certifi.where() para Atlas, sem parâmetros exóticos.
-            client_options.update(
-                {
-                    "tlsCAFile": certifi.where(),
-                    "tls": True,
-                    "tlsAllowInvalidCertificates": False,
-                }
-            )
+        # Para Mongo local sem TLS (detectado por ausência de Atlas na URL)
+        if "mongodb.net" not in mongodb_url and not mongodb_url.startswith("mongodb+srv://"):
+            client_options["tls"] = False
+            client_options.pop("tlsAllowInvalidCertificates")
+            client_options.pop("tlsAllowInvalidHostnames")
 
         _client = AsyncIOMotorClient(mongodb_url, **client_options)
         _database = _client[database_name]
 
         # Testa a conexão
         await _client.admin.command("ping")
-        logger.info(f"✅ Conectado ao MongoDB: {database_name}")
+        logger.info(f"✅ Conectado ao MongoDB: {database_name} (SSL Bypass ativo)")
 
         # Cria os índices
         await _create_indexes(_database)
@@ -99,26 +75,18 @@ async def init_database(
         return _database
 
     except Exception as e:
-        logger.error(f"Erro ao conectar ao MongoDB: {e}")
+        logger.error(f"❌ Falha Total ao conectar ao MongoDB: {e}")
+        # Mantemos o soft startup (não levantamos exceção aqui,
+        # o lifespan em main.py já trata isso marcando db_connected=False)
         raise
 
 
 async def _create_indexes(db: AsyncIOMotorDatabase):
-    """
-    Cria os índices necessários no banco de dados.
-
-    Args:
-        db: Instância do banco de dados
-    """
+    """Cria os índices necessários no banco de dados."""
     try:
-        # Índice único no campo slug (trava de segurança contra duplicidade)
         await db.bosses.create_index("slug", unique=True)
-        logger.info("Índice 'slug' criado com sucesso (unique=True)")
-
-        # Índice no campo name para buscas rápidas
         await db.bosses.create_index("name")
-        logger.info("Índice 'name' criado com sucesso")
-
+        logger.info("Índices criados com sucesso")
     except Exception as e:
         logger.error(f"Erro ao criar índices: {e}")
         raise
@@ -127,7 +95,6 @@ async def _create_indexes(db: AsyncIOMotorDatabase):
 async def close_database():
     """Fecha a conexão com o MongoDB."""
     global _database, _client
-
     if _client:
         _client.close()
         _client = None

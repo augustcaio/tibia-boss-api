@@ -53,9 +53,7 @@ async def init_database(
     global _database, _client
 
     if _database is not None:
-        logger.warning(
-            "Database já foi inicializado. Retornando instância existente."
-        )
+        logger.warning("Database já foi inicializado. Retornando instância existente.")
         return _database
 
     try:
@@ -70,8 +68,7 @@ async def init_database(
         #
         # Isso garante compatibilidade com a connection string "legacy" `mongodb://`
         # copiada do Atlas (Drivers Python 3.4+), conforme a task 5.1 da sprint.
-        is_atlas = mongodb_url.startswith(
-            "mongodb+srv://") or "mongodb.net" in mongodb_url
+        is_atlas = mongodb_url.startswith("mongodb+srv://") or "mongodb.net" in mongodb_url
 
         client_options = {
             "serverSelectionTimeoutMS": 5000,  # Falha rápido (5s)

@@ -33,7 +33,9 @@ router = APIRouter(
 async def list_bosses(
     request: Request,  # noqa: ARG001 - usado pelo slowapi para extrair o IP
     page: int = Query(default=1, ge=1, description="Número da página (começa em 1)"),
-    limit: int = Query(default=20, ge=1, le=100, description="Número de itens por página (máximo 100)"),
+    limit: int = Query(
+        default=20, ge=1, le=100, description="Número de itens por página (máximo 100)"
+    ),
     db: AsyncIOMotorDatabase = Depends(get_database),
 ):
     """
@@ -157,9 +159,7 @@ async def search_bosses(
     """
     # Valida query vazia
     if not q or not q.strip():
-        raise HTTPException(
-            status_code=400, detail="Query parameter 'q' cannot be empty"
-        )
+        raise HTTPException(status_code=400, detail="Query parameter 'q' cannot be empty")
 
     # Sanitiza a query para evitar ReDoS (Regular Expression Denial of Service)
     sanitized_query = re.escape(q.strip())
@@ -194,4 +194,3 @@ async def search_bosses(
         size=len(items),
         pages=pages,
     )
-

@@ -28,4 +28,3 @@ class BossShortSchema(BaseModel):
             }
         }
     )
-

@@ -165,4 +165,3 @@ class DeadLetterLogger:
 
 # Instância global do logger
 dead_letter_logger = DeadLetterLogger()
-

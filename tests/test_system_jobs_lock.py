@@ -42,5 +42,3 @@ async def test_acquire_and_release_lock(test_database: AsyncIOMotorDatabase):
     # Novo acquire deve voltar a funcionar
     third = await repo.acquire_scraper_lock()
     assert third is True
-
-

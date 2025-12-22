@@ -34,9 +34,7 @@ async def test_with_few_bosses():
         logger.info(f"Testando com {len(test_bosses)} bosses...")
 
         # Processa
-        tasks = [
-            process_boss(client, boss_info, semaphore) for boss_info in test_bosses
-        ]
+        tasks = [process_boss(client, boss_info, semaphore) for boss_info in test_bosses]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Mostra resultados
@@ -51,4 +49,3 @@ async def test_with_few_bosses():
 
 if __name__ == "__main__":
     asyncio.run(test_with_few_bosses())
-

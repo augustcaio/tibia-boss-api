@@ -103,4 +103,3 @@ def test_boss_model_with_int_values():
     boss = BossModel(name="Test", hp=50000, exp=10000)
     assert boss.hp == 50000
     assert boss.exp == 10000
-

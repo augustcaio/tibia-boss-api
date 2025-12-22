@@ -174,4 +174,3 @@ def test_search_bosses_rate_limit_headers_and_blocking(client):
         last_status = resp.status_code
 
     assert last_status == 429
-

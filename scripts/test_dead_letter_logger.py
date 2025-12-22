@@ -99,4 +99,3 @@ async def test_with_real_boss():
 if __name__ == "__main__":
     asyncio.run(test_with_intentional_error())
     # asyncio.run(test_with_real_boss())  # Descomente para testar com boss real
-

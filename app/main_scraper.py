@@ -209,9 +209,7 @@ async def main():
         logger.info(f"Processando bosses (máx {MAX_CONCURRENT_REQUESTS} simultâneos)...")
         logger.info("-" * 60)
 
-        tasks = [
-            process_boss(client, boss_info, semaphore) for boss_info in bosses_list
-        ]
+        tasks = [process_boss(client, boss_info, semaphore) for boss_info in bosses_list]
 
         # Usa gather para processar em paralelo
         results = await asyncio.gather(*tasks, return_exceptions=True)

@@ -142,9 +142,7 @@ class BossRepository:
             logger.error(f"Erro ao contar bosses: {e}")
             return 0
 
-    async def search_by_name(
-        self, query: str, skip: int = 0, limit: int = 20
-    ) -> List[BossModel]:
+    async def search_by_name(self, query: str, skip: int = 0, limit: int = 20) -> List[BossModel]:
         """
         Busca bosses por nome usando regex (case insensitive).
 
@@ -169,9 +167,7 @@ class BossRepository:
             # Cria filtro regex case insensitive
             filter_query = {"name": {"$regex": query, "$options": "i"}}
 
-            cursor = (
-                self.collection.find(filter_query, projection).skip(skip).limit(limit)
-            )
+            cursor = self.collection.find(filter_query, projection).skip(skip).limit(limit)
             documents = await cursor.to_list(length=limit)
 
             # Converte documentos para BossModel
@@ -247,4 +243,3 @@ class BossRepository:
         except Exception as e:
             logger.error(f"Erro ao listar bosses: {e}")
             return []
-

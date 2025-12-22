@@ -107,8 +107,7 @@ def custom_openapi():
     # Adiciona servidor padrão se não existir
     if "servers" not in openapi_schema or not openapi_schema.get("servers"):
         openapi_schema["servers"] = [
-            {"url": "http://localhost:8000",
-                "description": "Servidor local de desenvolvimento"}
+            {"url": "http://localhost:8000", "description": "Servidor local de desenvolvimento"}
         ]
     app.openapi_schema = openapi_schema
     return app.openapi_schema

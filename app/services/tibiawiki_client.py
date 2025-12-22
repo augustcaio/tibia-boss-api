@@ -53,9 +53,7 @@ class TibiaWikiClient:
             await self._client.aclose()
             self._client = None
 
-    async def _request_with_backoff(
-        self, method: str, url: str, **kwargs
-    ) -> httpx.Response:
+    async def _request_with_backoff(self, method: str, url: str, **kwargs) -> httpx.Response:
         """
         Faz uma requisição HTTP com exponential backoff para erros 429.
 
@@ -81,7 +79,7 @@ class TibiaWikiClient:
             except httpx.HTTPStatusError as e:
                 if e.response.status_code == 429:
                     if attempt < self.MAX_RETRIES - 1:
-                        wait_time = backoff * (2 ** attempt)
+                        wait_time = backoff * (2**attempt)
                         logger.warning(
                             f"Rate limit (429) atingido. Aguardando {wait_time}s antes de tentar novamente..."
                         )
@@ -89,9 +87,7 @@ class TibiaWikiClient:
                         backoff = wait_time
                         continue
                     else:
-                        logger.error(
-                            f"Rate limit (429) após {self.MAX_RETRIES} tentativas"
-                        )
+                        logger.error(f"Rate limit (429) após {self.MAX_RETRIES} tentativas")
                         raise
                 else:
                     raise
@@ -123,9 +119,7 @@ class TibiaWikiClient:
             if cmcontinue:
                 params["cmcontinue"] = cmcontinue
 
-            logger.info(
-                f"Buscando bosses... (já encontrados: {len(all_bosses)})"
-            )
+            logger.info(f"Buscando bosses... (já encontrados: {len(all_bosses)})")
 
             response = await self._request_with_backoff("GET", "", params=params)
             data = response.json()
@@ -207,11 +201,8 @@ class TibiaWikiClient:
 
         revisions = page_data.get("revisions", [])
         if not revisions:
-            logger.warning(
-                f"Nenhuma revisão encontrada: pageid={pageid}, title={title}"
-            )
+            logger.warning(f"Nenhuma revisão encontrada: pageid={pageid}, title={title}")
             return None
 
         content = revisions[0].get("slots", {}).get("main", {}).get("*")
         return content
-

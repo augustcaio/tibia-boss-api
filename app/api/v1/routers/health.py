@@ -24,9 +24,9 @@ router = APIRouter(
 async def health_check(db: AsyncIOMotorDatabase = Depends(get_database)):
     """
     Endpoint de health check.
-    
+
     Verifica se a API e o banco de dados estão funcionando corretamente.
-    
+
     Returns:
         Dict com status da API e conexão com o banco
     """
@@ -39,4 +39,3 @@ async def health_check(db: AsyncIOMotorDatabase = Depends(get_database)):
         return {"status": "ok", "db": "connected"}
     except Exception as e:
         return {"status": "ok", "db": "disconnected", "error": str(e)}
-

@@ -62,7 +62,7 @@ class SystemJobsRepository:
         )
 
         if result is None:
-            logger.info('Job already running - não foi possível adquirir o lock')
+            logger.info("Job already running - não foi possível adquirir o lock")
             return False
 
         logger.info("Lock acquired para o job de scraper")
@@ -89,5 +89,3 @@ class SystemJobsRepository:
             )
         else:
             logger.info("Lock liberado para o job de scraper")
-
-

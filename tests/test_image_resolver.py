@@ -46,9 +46,7 @@ async def test_resolve_images_single_batch(image_resolver, mock_httpx_response):
         }
     }
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(return_value=mock_httpx_response(json_data=mock_data))
 
         filenames = ["File:Morgaroth.gif", "File:Abyssador.gif"]
@@ -94,9 +92,7 @@ async def test_resolve_images_multiple_batches(image_resolver, mock_httpx_respon
         }
     }
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(
             side_effect=[
                 mock_httpx_response(json_data=mock_data_batch1),
@@ -137,9 +133,7 @@ async def test_resolve_images_missing_image(image_resolver, mock_httpx_response)
         }
     }
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(return_value=mock_httpx_response(json_data=mock_data))
 
         filenames = ["File:Morgaroth.gif", "File:Missing.gif"]
@@ -164,9 +158,7 @@ async def test_resolve_images_empty_imageinfo(image_resolver, mock_httpx_respons
         }
     }
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(return_value=mock_httpx_response(json_data=mock_data))
 
         filenames = ["File:NoImageInfo.gif"]
@@ -186,9 +178,7 @@ async def test_resolve_images_http_error(image_resolver, mock_httpx_response):
         "Internal Server Error", request=MagicMock(), response=error_response
     )
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(side_effect=http_error)
 
         filenames = ["File:Error.gif"]
@@ -201,9 +191,7 @@ async def test_resolve_images_http_error(image_resolver, mock_httpx_response):
 @pytest.mark.asyncio
 async def test_resolve_images_general_exception(image_resolver):
     """Testa que exceções gerais não fazem o sistema crashar."""
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(side_effect=Exception("Erro inesperado"))
 
         filenames = ["File:Exception.gif"]
@@ -235,9 +223,7 @@ async def test_resolve_images_duplicates(image_resolver, mock_httpx_response):
         }
     }
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(return_value=mock_httpx_response(json_data=mock_data))
 
         # Lista com duplicatas
@@ -255,9 +241,7 @@ async def test_resolve_images_uses_post_not_get(image_resolver, mock_httpx_respo
     """Testa que a requisição usa POST e não GET."""
     mock_data = {"query": {"pages": {}}}
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(return_value=mock_httpx_response(json_data=mock_data))
 
         filenames = ["File:Test.gif"]
@@ -295,9 +279,7 @@ async def test_resolve_images_batch_error_does_not_crash(image_resolver, mock_ht
         }
     }
 
-    with patch.object(
-        image_resolver, "_client", new_callable=AsyncMock
-    ) as mock_client:
+    with patch.object(image_resolver, "_client", new_callable=AsyncMock) as mock_client:
         mock_client.post = AsyncMock(
             side_effect=[
                 http_error,  # Primeiro lote falha
@@ -319,4 +301,3 @@ async def test_resolve_images_batch_error_does_not_crash(image_resolver, mock_ht
         # Segundo lote foi resolvido corretamente
         for i in range(50, 55):
             assert results[f"File:Boss{i}.gif"] == f"https://example.com/Boss{i}.gif"
-

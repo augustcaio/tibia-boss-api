@@ -52,16 +52,16 @@ async def main():
                 logger.info(f"Testando extração de wikitext para: {first_boss.get('title')}")
                 logger.info("=" * 60)
 
-                wikitext = await client.get_boss_wikitext(
-                    pageid=first_boss.get("pageid")
-                )
+                wikitext = await client.get_boss_wikitext(pageid=first_boss.get("pageid"))
 
                 if wikitext:
                     preview = wikitext[:200] + "..." if len(wikitext) > 200 else wikitext
                     logger.info(f"\n✅ Wikitext obtido com sucesso!")
                     logger.info(f"Preview (primeiros 200 chars):\n{preview}")
                 else:
-                    logger.warning(f"\n⚠️  Não foi possível obter wikitext para {first_boss.get('title')}")
+                    logger.warning(
+                        f"\n⚠️  Não foi possível obter wikitext para {first_boss.get('title')}"
+                    )
 
             logger.info("\n" + "=" * 60)
             logger.info("✅ Teste concluído com sucesso!")
@@ -74,4 +74,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

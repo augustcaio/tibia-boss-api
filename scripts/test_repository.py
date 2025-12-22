@@ -36,9 +36,7 @@ async def main():
         name="Morgaroth",
         hp=77000,
         exp=50000,
-        visuals=BossVisuals(
-            gif_url="https://example.com/morgaroth.gif", filename="morgaroth.gif"
-        ),
+        visuals=BossVisuals(gif_url="https://example.com/morgaroth.gif", filename="morgaroth.gif"),
     )
     result = await repository.upsert(boss1)
     print(f"  Resultado: {'✅ Sucesso' if result else '❌ Falhou'}")
@@ -70,9 +68,7 @@ async def main():
 
     # Teste 4: Batch upsert
     print("🧪 Teste 4: Batch upsert...")
-    bosses = [
-        BossModel(name=f"Boss {i}", hp=10000 + i * 1000) for i in range(5)
-    ]
+    bosses = [BossModel(name=f"Boss {i}", hp=10000 + i * 1000) for i in range(5)]
     success = await repository.upsert_batch(bosses)
     total = await repository.count()
     print(f"  Processados: {success}/{len(bosses)}")
@@ -86,4 +82,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

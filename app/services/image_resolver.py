@@ -199,4 +199,3 @@ class ImageResolverService:
 
         logger.info(f"Resolução concluída: {len(all_results)} URLs obtidas")
         return all_results
-

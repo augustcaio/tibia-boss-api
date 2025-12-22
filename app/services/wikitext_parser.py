@@ -230,7 +230,7 @@ class WikitextParser:
         # Adiciona o filename ao modelo se encontrado
         if image_filename:
             from app.models.boss import BossVisuals
+
             boss_model.visuals = BossVisuals(filename=image_filename)
 
         return boss_model
-

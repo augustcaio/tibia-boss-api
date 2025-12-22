@@ -10,8 +10,9 @@ class Settings(BaseSettings):
     """Configurações da aplicação."""
 
     # MongoDB - aceita MONGODB_URL ou MONGO_URL
-    mongodb_url: str = os.environ.get("MONGODB_URL") or os.environ.get(
-        "MONGO_URL") or "mongodb://127.0.0.1:27017"
+    mongodb_url: str = (
+        os.environ.get("MONGODB_URL") or os.environ.get("MONGO_URL") or "mongodb://127.0.0.1:27017"
+    )
     database_name: str = "tibia_bosses"
 
     # Admin

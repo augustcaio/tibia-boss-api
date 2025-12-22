@@ -83,10 +83,7 @@ async def test_upsert_idempotent(repository: BossRepository):
 @pytest.mark.asyncio
 async def test_upsert_batch(repository: BossRepository):
     """Testa upsert em lote."""
-    bosses = [
-        BossModel(name=f"Boss {i}", hp=10000 + i, exp=5000 + i)
-        for i in range(5)
-    ]
+    bosses = [BossModel(name=f"Boss {i}", hp=10000 + i, exp=5000 + i) for i in range(5)]
 
     success_count = await repository.upsert_batch(bosses)
 
@@ -173,4 +170,3 @@ async def test_index_created(test_database: AsyncIOMotorDatabase):
     slug_index = next((idx for idx in indexes if idx.get("key", {}).get("slug")), None)
     assert slug_index is not None
     assert slug_index.get("unique") is True
-

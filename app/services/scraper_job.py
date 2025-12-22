@@ -70,9 +70,7 @@ async def run_scraper_job() -> None:
             )
             logger.info("-" * 60)
 
-            tasks = [
-                process_boss(client, boss_info, semaphore) for boss_info in bosses_list
-            ]
+            tasks = [process_boss(client, boss_info, semaphore) for boss_info in bosses_list]
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -93,9 +91,7 @@ async def run_scraper_job() -> None:
 
             success_count = len(processed_bosses)
             failure_count = total_bosses - success_count
-            success_rate = (
-                (success_count / total_bosses * 100) if total_bosses > 0 else 0
-            )
+            success_rate = (success_count / total_bosses * 100) if total_bosses > 0 else 0
 
             logger.info("-" * 60)
             logger.info("Parse concluído:")
@@ -145,5 +141,3 @@ async def run_scraper_job() -> None:
     finally:
         # Garante liberação do lock mesmo em caso de erro
         await system_jobs_repo.release_scraper_lock()
-
-

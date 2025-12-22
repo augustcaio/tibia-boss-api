@@ -12,4 +12,3 @@ from app.core.database import (
 )
 
 __all__ = ["get_database", "init_database", "close_database"]
-

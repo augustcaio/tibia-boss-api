@@ -100,13 +100,7 @@ async def test_get_boss_wikitext_by_pageid(tibiawiki_client, mock_httpx_response
                     "pageid": 123,
                     "title": "Test Boss",
                     "revisions": [
-                        {
-                            "slots": {
-                                "main": {
-                                    "*": "{{Infobox Boss|hp=50000|exp=10000}}"
-                                }
-                            }
-                        }
+                        {"slots": {"main": {"*": "{{Infobox Boss|hp=50000|exp=10000}}"}}}
                     ],
                 }
             }
@@ -133,15 +127,7 @@ async def test_get_boss_wikitext_by_title(tibiawiki_client, mock_httpx_response)
                 "456": {
                     "pageid": 456,
                     "title": "Test Boss",
-                    "revisions": [
-                        {
-                            "slots": {
-                                "main": {
-                                    "*": "{{Infobox Boss|hp=30000}}"
-                                }
-                            }
-                        }
-                    ],
+                    "revisions": [{"slots": {"main": {"*": "{{Infobox Boss|hp=30000}}"}}}],
                 }
             }
         }
@@ -223,8 +209,10 @@ async def test_exponential_backoff_on_429(tibiawiki_client, mock_httpx_response)
     # Primeira tentativa: 429, Segunda tentativa: sucesso
     error_response = MagicMock()
     error_response.status_code = 429
-    error_response.raise_for_status = MagicMock(side_effect=HTTPStatusError("Rate limited", request=MagicMock(), response=error_response))
-    
+    error_response.raise_for_status = MagicMock(
+        side_effect=HTTPStatusError("Rate limited", request=MagicMock(), response=error_response)
+    )
+
     success_response = mock_httpx_response(
         json_data={"query": {"categorymembers": [{"pageid": 1, "title": "Boss 1"}]}}
     )
@@ -232,10 +220,10 @@ async def test_exponential_backoff_on_429(tibiawiki_client, mock_httpx_response)
     # Mock do cliente HTTP interno
     mock_client = AsyncMock()
     mock_client.request = AsyncMock(side_effect=[error_response, success_response])
-    
+
     with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
         tibiawiki_client._client = mock_client
-        
+
         bosses = await tibiawiki_client.get_all_bosses()
 
         assert len(bosses) == 1
@@ -253,4 +241,3 @@ async def test_context_manager(tibiawiki_client):
 
     # Após sair do context, cliente deve estar fechado
     assert tibiawiki_client._client is None or tibiawiki_client._client.is_closed
-

@@ -47,5 +47,3 @@ async def trigger_sync(
 
     background_tasks.add_task(run_scraper_job)
     return {"detail": "Sync job scheduled"}
-
-

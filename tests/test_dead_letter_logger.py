@@ -186,4 +186,3 @@ def test_log_parsing_error_with_real_wikitext(dead_letter_logger, temp_log_file)
     assert len(log_entry["raw_data_snippet"]) <= 503  # Máximo 500 + "..."
     assert log_entry["boss_name"] == "Test Boss"
     assert "Template" in log_entry["error_message"]
-

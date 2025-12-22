@@ -3,4 +3,3 @@
 from app.models.boss import BossModel
 
 __all__ = ["BossModel"]
-

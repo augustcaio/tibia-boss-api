@@ -2,25 +2,27 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
-from app.db.connection import close_database, init_database
 from app.db.repository import BossRepository
 from app.main import app
 from app.models.boss import BossModel, BossVisuals
 
 
 @pytest.fixture
-async def test_database():
-    """Fixture para criar um banco de dados de teste."""
-    db = await init_database(
-        mongodb_url="mongodb://localhost:27017",
-        database_name="tibia_bosses_test",
-    )
+async def test_database() -> AsyncIOMotorDatabase:
+    """Fixture para criar um banco de dados de teste isolado.
+
+    Não usa o singleton global de app.core.database para evitar conflitos de
+    event loop com o TestClient e com outros testes.
+    """
+    client = AsyncIOMotorClient("mongodb://localhost:27017")
+    db = client["tibia_bosses_test"]
     yield db
+
     # Limpa após os testes
-    await db.client.drop_database("tibia_bosses_test")
-    await close_database()
+    await client.drop_database("tibia_bosses_test")
+    client.close()
 
 
 @pytest.fixture

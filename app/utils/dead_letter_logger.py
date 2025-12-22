@@ -3,7 +3,7 @@
 import json
 import logging
 import traceback
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -88,7 +88,7 @@ class DeadLetterLogger:
         try:
             # Prepara o registro estruturado
             log_entry = {
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "boss_name": boss_name,
                 "error_message": self._get_traceback_summary(error),
                 "raw_data_snippet": self._truncate_snippet(raw_data or ""),
@@ -121,7 +121,7 @@ class DeadLetterLogger:
         """
         try:
             log_entry = {
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "boss_name": boss_name,
                 "error_message": self._get_traceback_summary(error),
                 "raw_data_snippet": f"Image filename: {image_filename or 'unknown'}",

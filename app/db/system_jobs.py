@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo import ReturnDocument
@@ -53,7 +53,7 @@ class SystemJobsRepository:
         Returns:
             True se o lock foi adquirido com sucesso, False se já existe um job rodando.
         """
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
 
         result = await self.collection.find_one_and_update(
             {"_id": self.SCRAPER_LOCK_ID, "status": "idle"},
@@ -70,7 +70,7 @@ class SystemJobsRepository:
 
     async def release_scraper_lock(self) -> None:
         """Libera o lock do scraper, marcando o job como idle e atualizando last_run."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
 
         result = await self.collection.update_one(
             {"_id": self.SCRAPER_LOCK_ID},

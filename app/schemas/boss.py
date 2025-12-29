@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.boss import BossVisuals
+from app.models.boss import BossVisuals, BosstiaryStats
 
 
 class BossShortSchema(BaseModel):
@@ -14,6 +14,8 @@ class BossShortSchema(BaseModel):
     slug: Optional[str] = None
     visuals: Optional[BossVisuals] = None
     hp: Optional[int] = None
+    location: Optional[str] = None
+    bosstiary: Optional[BosstiaryStats] = None
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -21,6 +23,8 @@ class BossShortSchema(BaseModel):
                 "name": "Morgaroth",
                 "slug": "morgaroth",
                 "hp": 100000,
+                "location": "Vampire Hell",
+                "bosstiary": {"class_name": "Nemesis", "kills_required": 5},
                 "visuals": {
                     "gif_url": "https://tibia.fandom.com/images/Morgaroth.gif",
                     "filename": "Morgaroth.gif",

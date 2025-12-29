@@ -1,6 +1,7 @@
 """Parser para extrair dados de Bosses do Wikitext."""
 
 import logging
+import re
 from typing import Optional
 
 import mwparserfromhell
@@ -110,6 +111,27 @@ class WikitextParser:
         return None
 
     @classmethod
+    def _clean_wiki_text(cls, text: str) -> Optional[str]:
+        """
+        Limpa texto do wiki removendo [[links]], links com pipe e tags HTML.
+        Ex: "[[Fire]], [[Energy]]" -> "Fire, Energy"
+        Ex: "[[Abyssador|The Abyssador]]" -> "The Abyssador"
+        """
+        if not text:
+            return None
+
+        # Remove links do tipo [[Link|Texto]] -> Texto
+        text = re.sub(r"\[\[(?:[^|\]]*\|)?([^\]]+)\]\]", r"\1", text)
+
+        # Remove tags HTML comuns como <br>, <br/>
+        text = re.sub(r"<br\s*/?>", ", ", text, flags=re.IGNORECASE)
+
+        # Remove outras tags HTML simples
+        text = re.sub(r"<[^>]+>", "", text)
+
+        return text.strip()
+
+    @classmethod
     def _normalize_image_filename(cls, image_value: str) -> str:
         """
         Normaliza o nome do arquivo de imagem removendo prefixos e links.
@@ -152,9 +174,13 @@ class WikitextParser:
             "name": boss_name or "",
             "hp": None,
             "exp": None,
+            "location": None,
             "walks_through": [],
+            "elemental_weaknesses": [],
+            "elemental_resistances": [],
             "immunities": [],
-            "image_filename": None,  # Nome do arquivo de imagem (ex: "Morgaroth.gif")
+            "bosstiary_class": None,
+            "image_filename": None,
         }
 
         # Mapeia os campos do template para o modelo
@@ -166,12 +192,22 @@ class WikitextParser:
             "exp": "exp",
             "experience": "exp",
             "xp": "exp",
+            "location": "location",
+            "loc": "location",
             "walks through": "walks_through",
             "walksthrough": "walks_through",
             "walks_through": "walks_through",
+            "weak to": "elemental_weaknesses",
+            "weakness": "elemental_weaknesses",
+            "weak": "elemental_weaknesses",
+            "strong to": "elemental_resistances",
+            "resistance": "elemental_resistances",
+            "resistant": "elemental_resistances",
             "immunities": "immunities",
             "immunity": "immunities",
             "immune": "immunities",
+            "immune to": "immunities",
+            "bosstiaryclass": "bosstiary_class",
             "image": "image",
             "imag": "image",
             "img": "image",
@@ -198,6 +234,9 @@ class WikitextParser:
                 field_name = field_mapping[param_name]
                 param_value = str(param.value).strip()
 
+                if not param_value:
+                    continue
+
                 # Atribui o valor ao campo correspondente
                 if field_name == "name":
                     data["name"] = param_value
@@ -207,28 +246,54 @@ class WikitextParser:
                     data["image_filename"] = image_filename
                 elif field_name in ("hp", "exp"):
                     data[field_name] = param_value
-                elif field_name in ("walks_through", "immunities"):
-                    # Se já existe valor, adiciona; senão cria lista
-                    if not data[field_name]:
-                        data[field_name] = param_value
-                    else:
-                        # Concatena se já houver valor
-                        data[field_name] = f"{data[field_name]}, {param_value}"
+                elif field_name == "location":
+                    data["location"] = cls._clean_wiki_text(param_value)
+                elif field_name == "bosstiary_class":
+                    data["bosstiary_class"] = param_value
+                elif field_name in (
+                    "walks_through",
+                    "elemental_weaknesses",
+                    "elemental_resistances",
+                    "immunities",
+                ):
+                    clean_val = cls._clean_wiki_text(param_value)
+                    if clean_val:
+                        # Se já existe valor, adiciona; senão cria lista
+                        if not data[field_name]:
+                            data[field_name] = clean_val
+                        else:
+                            # Concatena se já houver valor
+                            data[field_name] = f"{data[field_name]}, {clean_val}"
 
         # Se o nome ainda não foi encontrado, tenta pegar do título da página
         if not data["name"] and boss_name:
             data["name"] = boss_name
 
-        # Remove image_filename do dict antes de criar o modelo (será usado depois)
+        # Processa dados do Bosstiary
+        bosstiary_data = None
+        boss_class = data.pop("bosstiary_class", None)
+        if boss_class:
+            kills = None
+            bc_lower = boss_class.lower()
+            if "nemesis" in bc_lower:
+                kills = 5
+            elif "archfoe" in bc_lower:
+                kills = 60
+            elif "bane" in bc_lower:
+                kills = 2500
+
+            from app.models.boss import BosstiaryStats
+
+            bosstiary_data = BosstiaryStats(class_name=boss_class, kills_required=kills)
+
+        # Remove image_filename do dict antes de criar o modelo
         image_filename = data.pop("image_filename", None)
 
         # Cria o modelo
-        boss_model = BossModel(**data)
+        boss_model = BossModel(**data, bosstiary=bosstiary_data)
 
         # Adiciona o filename ao modelo se encontrado ou usa fallback baseado no nome
         if not image_filename and data["name"]:
-            # Fallback: muitos bosses não têm o campo 'image' explícito, 
-            # a Wiki usa o nome da página por padrão.
             image_filename = f"{data['name']}.gif"
 
         if image_filename:

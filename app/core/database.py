@@ -1,6 +1,7 @@
 """Conexão MongoDB usando Motor (async driver) com Dependency Injection."""
 
 import logging
+import os
 from typing import Optional
 
 import certifi
@@ -42,29 +43,41 @@ async def init_database(
         logger.warning("Database já foi inicializado. Retornando instância existente.")
         return _database
 
-    logger.info("🔌 Conectando ao MongoDB (Standard Mode)...")
+    logger.info("🔌 Conectando ao MongoDB...")
+
+    # Verifica se estamos em ambiente de teste (Github Actions / Local Tests)
+    is_testing = os.getenv("TESTING") == "true"
 
     try:
-        # Configuração limpa e correta para Cluster Atlas ou Local
-        client_options = {
-            "serverSelectionTimeoutMS": 5000,
-            "connectTimeoutMS": 30000,
-            "socketTimeoutMS": 30000,
-        }
-
-        # Se for Atlas (detectado pela URL), habilitamos TLS com certifi
-        if "mongodb.net" in mongodb_url or mongodb_url.startswith("mongodb+srv://"):
-            client_options.update(
-                {
-                    "tls": True,
-                    "tlsCAFile": certifi.where(),
-                }
-            )
+        if is_testing:
+            # Conexão Simples para Testes (Sem SSL, Sem Certifi)
+            logger.info("🧪 Modo de Teste Detectado: Conectando sem SSL")
+            client_options = {
+                "serverSelectionTimeoutMS": 5000,
+                "connectTimeoutMS": 30000,
+                "socketTimeoutMS": 30000,
+                "tls": False,
+            }
+            _client = AsyncIOMotorClient(mongodb_url, **client_options)
         else:
-            # Mongo local sem TLS
-            client_options["tls"] = False
+            # Conexão de Produção (Com SSL e Certifi)
+            logger.info("🌐 Modo de Produção: Conectando com SSL (certifi)")
+            client_options = {
+                "serverSelectionTimeoutMS": 5000,
+                "connectTimeoutMS": 30000,
+                "socketTimeoutMS": 30000,
+                "tls": True,
+                "tlsCAFile": certifi.where(),
+            }
+            # Se for Mongo local (sem Atlas na URL), desativa TLS
+            if "mongodb.net" not in mongodb_url and not mongodb_url.startswith(
+                "mongodb+srv://"
+            ):
+                client_options["tls"] = False
+                client_options.pop("tlsCAFile")
 
-        _client = AsyncIOMotorClient(mongodb_url, **client_options)
+            _client = AsyncIOMotorClient(mongodb_url, **client_options)
+
         _database = _client[database_name]
 
         # Testa a conexão
@@ -78,7 +91,10 @@ async def init_database(
 
     except Exception as e:
         logger.error(f"❌ Erro Crítico Mongo: {e}")
-        # Mantemos o soft startup através do raise (o lifespan em main.py trata isso)
+        if is_testing:
+            # Em testes, queremos que falhe duro para identificar o erro
+            raise e
+        # Em prod, mantemos o soft startup (levantando exceção para o lifespan tratar)
         raise
 
 

@@ -91,6 +91,7 @@ class ImageResolverService:
             "prop": "imageinfo",
             "iiprop": "url",
             "format": "json",
+            "redirects": "1",
         }
 
         result: Dict[str, str] = {}
@@ -106,39 +107,41 @@ class ImageResolverService:
             # Extrai as URLs das imagens
             query = data.get("query", {})
             pages = query.get("pages", {})
+            redirects = query.get("redirects", [])
 
-            for page_id, page_data in pages.items():
-                # Verifica se a página foi encontrada
-                if "missing" in page_data:
-                    # Página não encontrada, usa placeholder
-                    title = page_data.get("title", "")
-                    if title:
-                        result[title] = PLACEHOLDER_URL
-                        logger.warning(f"Imagem não encontrada: {title}, usando placeholder")
-                    continue
+            # Mapa de redirecionamentos: from -> to
+            redirect_map = {r["from"]: r["to"] for r in redirects}
 
+            # Primeiro, mapeia as URLs encontradas nas páginas para seus títulos
+            url_map = {}
+            for _, page_data in pages.items():
                 title = page_data.get("title", "")
                 imageinfo = page_data.get("imageinfo", [])
 
                 if imageinfo and len(imageinfo) > 0:
-                    # Pega a primeira URL disponível
                     url = imageinfo[0].get("url")
                     if url:
-                        result[title] = url
-                    else:
-                        result[title] = PLACEHOLDER_URL
-                        logger.warning(f"URL não encontrada para {title}, usando placeholder")
+                        url_map[title] = url
+
+            # Para cada filename original, busca a URL (diretamente ou via redirect)
+            for original_filename in filenames:
+                # Se houver redirecionamento, usa o título de destino
+                target_title = redirect_map.get(original_filename, original_filename)
+                
+                url = url_map.get(target_title)
+                if url:
+                    result[original_filename] = url
                 else:
-                    result[title] = PLACEHOLDER_URL
-                    logger.warning(f"Imageinfo vazio para {title}, usando placeholder")
+                    result[original_filename] = PLACEHOLDER_URL
+                    logger.warning("Imagem não encontrada: %s (target: %s), usando placeholder", original_filename, target_title)
 
         except httpx.HTTPStatusError as e:
-            logger.error(f"Erro HTTP ao resolver imagens: {e}")
+            logger.error("Erro HTTP ao resolver imagens: %s", e)
             # Em caso de erro, atribui placeholder para todas as imagens do lote
             for filename in filenames:
                 result[filename] = PLACEHOLDER_URL
         except Exception as e:
-            logger.error(f"Erro inesperado ao resolver imagens: {e}")
+            logger.error("Erro inesperado ao resolver imagens: %s", e)
             # Em caso de erro, atribui placeholder para todas as imagens do lote
             for filename in filenames:
                 result[filename] = PLACEHOLDER_URL
@@ -174,19 +177,19 @@ class ImageResolverService:
         # Divide em chunks de BATCH_SIZE
         chunks = self._chunk_list(unique_filenames, BATCH_SIZE)
 
-        logger.info(f"Resolvendo {len(unique_filenames)} imagens em {len(chunks)} lote(s)")
+        logger.info("Resolvendo %d imagens em %d lote(s)", len(unique_filenames), len(chunks))
 
         # Processa cada chunk
         all_results: Dict[str, str] = {}
 
         for i, chunk in enumerate(chunks, 1):
-            logger.debug(f"Processando lote {i}/{len(chunks)} ({len(chunk)} imagens)")
+            logger.debug("Processando lote %d/%d (%d imagens)", i, len(chunks), len(chunk))
 
             try:
                 batch_results = await self._resolve_batch(chunk)
                 all_results.update(batch_results)
             except Exception as e:
-                logger.error(f"Erro ao processar lote {i}: {e}")
+                logger.error("Erro ao processar lote %d: %s", i, e)
                 # Em caso de erro no lote, atribui placeholder para todas as imagens do lote
                 for filename in chunk:
                     all_results[filename] = PLACEHOLDER_URL
@@ -195,7 +198,7 @@ class ImageResolverService:
         for filename in unique_filenames:
             if filename not in all_results:
                 all_results[filename] = PLACEHOLDER_URL
-                logger.warning(f"Imagem {filename} não foi resolvida, usando placeholder")
+                logger.warning("Imagem %s não foi resolvida, usando placeholder", filename)
 
-        logger.info(f"Resolução concluída: {len(all_results)} URLs obtidas")
+        logger.info("Resolução concluída: %d URLs obtidas", len(all_results))
         return all_results

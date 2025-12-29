@@ -227,7 +227,12 @@ class WikitextParser:
         # Cria o modelo
         boss_model = BossModel(**data)
 
-        # Adiciona o filename ao modelo se encontrado
+        # Adiciona o filename ao modelo se encontrado ou usa fallback baseado no nome
+        if not image_filename and data["name"]:
+            # Fallback: muitos bosses não têm o campo 'image' explícito, 
+            # a Wiki usa o nome da página por padrão.
+            image_filename = f"File:{data['name']}.gif"
+
         if image_filename:
             from app.models.boss import BossVisuals
 

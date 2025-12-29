@@ -108,13 +108,13 @@ async def process_batch_with_images(
 
     # Coleta todos os filenames de imagens do lote
     image_filenames = []
-    boss_to_filenames = {}  # Mapeia boss -> filename para atualizar depois
+    name_to_filename = {}  # Mapeia nome do boss -> filename para atualizar depois
 
     for boss in bosses:
         if boss.visuals and boss.visuals.filename:
             filename = boss.visuals.filename
             image_filenames.append(filename)
-            boss_to_filenames[boss] = filename
+            name_to_filename[boss.name] = filename
 
     # Se não há imagens, retorna os bosses sem modificação
     if not image_filenames:
@@ -136,8 +136,8 @@ async def process_batch_with_images(
     # Enriquece os bosses com as URLs resolvidas
     enriched_bosses = []
     for boss in bosses:
-        if boss in boss_to_filenames:
-            filename = boss_to_filenames[boss]
+        if boss.name in name_to_filename:
+            filename = name_to_filename[boss.name]
             url = image_urls.get(filename)
 
             # Atualiza ou cria o objeto visuals

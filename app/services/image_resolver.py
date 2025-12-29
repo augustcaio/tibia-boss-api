@@ -64,7 +64,7 @@ class ImageResolverService:
         Returns:
             Lista de chunks
         """
-        return [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
+        return [items[i: i + chunk_size] for i in range(0, len(items), chunk_size)]
 
     async def _resolve_batch(self, filenames: List[str]) -> Dict[str, str]:
         """
@@ -126,14 +126,16 @@ class ImageResolverService:
             # Para cada filename original, busca a URL (diretamente ou via redirect)
             for original_filename in filenames:
                 # Se houver redirecionamento, usa o título de destino
-                target_title = redirect_map.get(original_filename, original_filename)
-                
+                target_title = redirect_map.get(
+                    original_filename, original_filename)
+
                 url = url_map.get(target_title)
                 if url:
                     result[original_filename] = url
                 else:
                     result[original_filename] = PLACEHOLDER_URL
-                    logger.warning("Imagem não encontrada: %s (target: %s), usando placeholder", original_filename, target_title)
+                    logger.warning(
+                        "Imagem não encontrada: %s (target: %s), usando placeholder", original_filename, target_title)
 
         except httpx.HTTPStatusError as e:
             logger.error("Erro HTTP ao resolver imagens: %s", e)
@@ -177,13 +179,15 @@ class ImageResolverService:
         # Divide em chunks de BATCH_SIZE
         chunks = self._chunk_list(unique_filenames, BATCH_SIZE)
 
-        logger.info("Resolvendo %d imagens em %d lote(s)", len(unique_filenames), len(chunks))
+        logger.info("Resolvendo %d imagens em %d lote(s)",
+                    len(unique_filenames), len(chunks))
 
         # Processa cada chunk
         all_results: Dict[str, str] = {}
 
         for i, chunk in enumerate(chunks, 1):
-            logger.debug("Processando lote %d/%d (%d imagens)", i, len(chunks), len(chunk))
+            logger.debug("Processando lote %d/%d (%d imagens)",
+                         i, len(chunks), len(chunk))
 
             try:
                 batch_results = await self._resolve_batch(chunk)
@@ -198,7 +202,8 @@ class ImageResolverService:
         for filename in unique_filenames:
             if filename not in all_results:
                 all_results[filename] = PLACEHOLDER_URL
-                logger.warning("Imagem %s não foi resolvida, usando placeholder", filename)
+                logger.warning(
+                    "Imagem %s não foi resolvida, usando placeholder", filename)
 
         logger.info("Resolução concluída: %d URLs obtidas", len(all_results))
         return all_results

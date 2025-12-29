@@ -1,9 +1,9 @@
 fastapi==0.109.2
 uvicorn[standard]==0.27.1
-# 👇 MUDANÇA CRÍTICA: Downgrade para versões estáveis antigas
-motor==3.3.1
+# 👇 O SEGREDO: Motor 3.1.2 funciona com Pymongo 4.3.3
+motor==3.1.2
 pymongo==4.3.3
-# 👆 FIM DA MUDANÇA
+# 👆 NÃO MUDE ISSO
 pydantic==2.5.3
 pydantic-settings==2.1.0
 httpx==0.26.0

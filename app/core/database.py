@@ -3,6 +3,7 @@
 import logging
 from typing import Optional
 
+import certifi
 from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
@@ -41,33 +42,34 @@ async def init_database(
         logger.warning("Database já foi inicializado. Retornando instância existente.")
         return _database
 
-    logger.info("🔌 Tentativa de conexão 'Insegura' (Bypass SSL)...")
+    logger.info("🔌 Conectando ao MongoDB (Standard Mode)...")
 
     try:
-        # ⚠️ MODO DE DIAGNÓSTICO:
-        # Desativamos a verificação de certificados e hostnames para isolar
-        # se o problema no Render é a cadeia de confiança ou o protocolo.
+        # Configuração limpa e correta para Cluster Atlas ou Local
         client_options = {
             "serverSelectionTimeoutMS": 5000,
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000,
-            "tls": True,
-            "tlsAllowInvalidCertificates": True,
-            "tlsAllowInvalidHostnames": True,
         }
 
-        # Para Mongo local sem TLS (detectado por ausência de Atlas na URL)
-        if "mongodb.net" not in mongodb_url and not mongodb_url.startswith("mongodb+srv://"):
+        # Se for Atlas (detectado pela URL), habilitamos TLS com certifi
+        if "mongodb.net" in mongodb_url or mongodb_url.startswith("mongodb+srv://"):
+            client_options.update(
+                {
+                    "tls": True,
+                    "tlsCAFile": certifi.where(),
+                }
+            )
+        else:
+            # Mongo local sem TLS
             client_options["tls"] = False
-            client_options.pop("tlsAllowInvalidCertificates")
-            client_options.pop("tlsAllowInvalidHostnames")
 
         _client = AsyncIOMotorClient(mongodb_url, **client_options)
         _database = _client[database_name]
 
         # Testa a conexão
         await _client.admin.command("ping")
-        logger.info(f"✅ Conectado ao MongoDB: {database_name} (SSL Bypass ativo)")
+        logger.info(f"✅ Conectado ao MongoDB: {database_name} com sucesso!")
 
         # Cria os índices
         await _create_indexes(_database)
@@ -75,9 +77,8 @@ async def init_database(
         return _database
 
     except Exception as e:
-        logger.error(f"❌ Falha Total ao conectar ao MongoDB: {e}")
-        # Mantemos o soft startup (não levantamos exceção aqui,
-        # o lifespan em main.py já trata isso marcando db_connected=False)
+        logger.error(f"❌ Erro Crítico Mongo: {e}")
+        # Mantemos o soft startup através do raise (o lifespan em main.py trata isso)
         raise
 
 

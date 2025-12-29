@@ -114,6 +114,7 @@ class TibiaWikiClient:
                 "cmtitle": "Category:Bosses",
                 "cmlimit": 500,
                 "cmnamespace": 0,  # Apenas artigos principais (ignora arquivos, categorias, etc.)
+                "cmtype": "page",  # Garante que só pega páginas
                 "format": "json",
             }
 

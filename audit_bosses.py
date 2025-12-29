@@ -14,6 +14,7 @@ def get_wiki_bosses():
         "cmtitle": "Category:Bosses",
         "cmlimit": 500,
         "cmnamespace": 0,  # Apenas artigos principais
+        "cmtype": "page",   # Garante que só pega páginas
         "format": "json"
     }
     

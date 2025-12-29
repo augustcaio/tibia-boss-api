@@ -12,9 +12,10 @@ Esta API extrai dados de bosses do [TibiaWiki](https://tibia.fandom.com) e os di
 
 ## Stack Tecnológica
 
-- **Python 3.11+**
+- **Python 3.10+** (Alinhado com OpenSSL para produção)
 - **FastAPI** - Framework web assíncrono
 - **MongoDB + Motor** - Banco de dados NoSQL com driver assíncrono
+- **SlowAPI** - Rate Limiting para proteção de endpoints
 - **Pydantic v2** - Validação de dados
 - **httpx** - Cliente HTTP assíncrono
 - **mwparserfromhell** - Parser de Wikitext
@@ -23,9 +24,8 @@ Esta API extrai dados de bosses do [TibiaWiki](https://tibia.fandom.com) e os di
 
 ### Pré-requisitos
 
-- Python 3.11+
-- Docker e Docker Compose (ou Docker Compose V2)
-- Poetry (opcional) ou pip
+- Python 3.10+
+- Docker e Docker Compose
 
 ### Instalação
 
@@ -118,8 +118,27 @@ A API está disponível em `http://localhost:8000` após iniciar o servidor.
 - **GET** `/api/v1/bosses` - Listar bosses (paginação)
 - **GET** `/api/v1/bosses/{slug}` - Detalhes de um boss
 - **GET** `/api/v1/bosses/search` - Buscar bosses por nome
+- **POST** `/api/v1/admin/sync` - Disparar sincronização manual (requer Token)
 
-### Documentação Interativa
+### Metadados de Resposta
+As respostas paginadas incluem o campo `latest_update` (ISO 8601), indicando quando os dados foram sincronizados pela última vez com a TibiaWiki.
+
+## Automação
+
+O projeto possui um sistema de atualização automática:
+- **Ciclo interno:** O scraper roda a cada 12 horas (10:00 e 22:00 UTC).
+- **Resiliência:** Utiliza um sistema de *Distributed Lock* (Mongo Mutex) para garantir que apenas uma instância do scraper rode por vez, mesmo em ambientes escalados.
+- **Modo Sleep:** Em ambientes como Render Free, recomenda-se configurar um gatilho externo (ex: cron-job.org) apontando para o endpoint `/admin/sync`.
+
+## Auditoria e Integridade
+
+Para garantir que a API está em sincronia com a TibiaWiki, utilize o script de auditoria:
+
+```bash
+python audit_bosses.py
+```
+
+O script compara a lista de artigos da categoria Bosses na Wiki com o banco de dados local e reporta discrepâncias.
 
 - **Swagger UI:** `http://localhost:8000/docs`
 - **OpenAPI JSON:** `http://localhost:8000/openapi.json`

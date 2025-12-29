@@ -13,6 +13,7 @@ def get_wiki_bosses():
         "list": "categorymembers",
         "cmtitle": "Category:Bosses",
         "cmlimit": 500,
+        "cmnamespace": 0,  # Apenas artigos principais
         "format": "json"
     }
     

@@ -113,6 +113,7 @@ class TibiaWikiClient:
                 "list": "categorymembers",
                 "cmtitle": "Category:Bosses",
                 "cmlimit": 500,
+                "cmnamespace": 0,  # Apenas artigos principais (ignora arquivos, categorias, etc.)
                 "format": "json",
             }
 

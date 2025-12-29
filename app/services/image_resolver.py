@@ -71,7 +71,7 @@ class ImageResolverService:
         Resolve URLs para um lote de nomes de arquivos.
 
         Args:
-            filenames: Lista de nomes de arquivos (ex: ["File:Morgaroth.gif"])
+            filenames: Lista de nomes de arquivos (ex: ["Morgaroth.gif"])
 
         Returns:
             Dicionário mapeando filename -> url
@@ -81,8 +81,9 @@ class ImageResolverService:
 
         await self._ensure_client()
 
-        # Prepara os títulos separados por pipe (|)
-        titles = "|".join(filenames)
+        # Adiciona o prefixo 'File:' se não tiver, para a API entender
+        titles_list = [f"File:{f}" if not f.startswith("File:") else f for f in filenames]
+        titles = "|".join(titles_list)
 
         # Parâmetros da API
         params = {
@@ -98,7 +99,6 @@ class ImageResolverService:
 
         try:
             # Faz POST request com os parâmetros no body (não na URL)
-            # Isso evita erro de URI Too Long
             response = await self._client.post("", data=params)
             response.raise_for_status()
 
@@ -112,7 +112,7 @@ class ImageResolverService:
             # Mapa de redirecionamentos: from -> to
             redirect_map = {r["from"]: r["to"] for r in redirects}
 
-            # Primeiro, mapeia as URLs encontradas nas páginas para seus títulos
+            # Mapeia as URLs encontradas nas páginas para seus títulos
             url_map = {}
             for _, page_data in pages.items():
                 title = page_data.get("title", "")
@@ -125,9 +125,13 @@ class ImageResolverService:
 
             # Para cada filename original, busca a URL (diretamente ou via redirect)
             for original_filename in filenames:
-                # Se houver redirecionamento, usa o título de destino
-                target_title = redirect_map.get(
-                    original_filename, original_filename)
+                # O filename original aqui NÃO tem File: (conforme Step 1)
+                full_name = (
+                    f"File:{original_filename}"
+                    if not original_filename.startswith("File:")
+                    else original_filename
+                )
+                target_title = redirect_map.get(full_name, full_name)
 
                 url = url_map.get(target_title)
                 if url:
@@ -135,7 +139,10 @@ class ImageResolverService:
                 else:
                     result[original_filename] = PLACEHOLDER_URL
                     logger.warning(
-                        "Imagem não encontrada: %s (target: %s), usando placeholder", original_filename, target_title)
+                        "Imagem não encontrada: %s (target: %s), usando placeholder",
+                        original_filename,
+                        target_title,
+                    )
 
         except httpx.HTTPStatusError as e:
             logger.error("Erro HTTP ao resolver imagens: %s", e)

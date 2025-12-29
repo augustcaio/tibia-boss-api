@@ -112,32 +112,29 @@ class WikitextParser:
     @classmethod
     def _normalize_image_filename(cls, image_value: str) -> str:
         """
-        Normaliza o nome do arquivo de imagem para o formato File:Name.ext.
-
-        Args:
-            image_value: Valor do campo image (pode ser "File:Name.gif", "Name.gif", etc.)
-
-        Returns:
-            Nome normalizado no formato "File:Name.ext"
+        Normaliza o nome do arquivo de imagem removendo prefixos e links.
+        Retorna apenas o nome limpo (ex: 'Morgaroth.gif').
         """
         if not image_value:
             return None
 
         image_value = str(image_value).strip()
 
-        # Remove prefixo "File:" se já existir
-        if image_value.startswith("File:"):
-            return image_value
-
         # Remove links do MediaWiki ([[File:Name.gif]] ou [[:File:Name.gif]])
         image_value = image_value.replace("[[", "").replace("]]", "")
-        if image_value.startswith(":File:"):
-            image_value = image_value[1:]  # Remove o ":"
-        elif image_value.startswith("File:"):
-            return image_value
+
+        # Remove prefixos comuns
+        for prefix in ["File:", "Image:", ":File:", ":Image:"]:
+            if image_value.startswith(prefix):
+                image_value = image_value[len(prefix) :].strip()
+
+        # Remove parâmetros de formatação (ex: |200px)
+        if "|" in image_value:
+            image_filename = image_value.split("|")[0].strip()
         else:
-            # Adiciona prefixo "File:" se não tiver
-            return f"File:{image_value}"
+            image_filename = image_value.strip()
+
+        return image_filename
 
     @classmethod
     def _extract_template_data(cls, template, boss_name: Optional[str] = None) -> BossModel:
@@ -157,7 +154,7 @@ class WikitextParser:
             "exp": None,
             "walks_through": [],
             "immunities": [],
-            "image_filename": None,  # Nome do arquivo de imagem (ex: "File:Morgaroth.gif")
+            "image_filename": None,  # Nome do arquivo de imagem (ex: "Morgaroth.gif")
         }
 
         # Mapeia os campos do template para o modelo
@@ -176,6 +173,7 @@ class WikitextParser:
             "immunity": "immunities",
             "immune": "immunities",
             "image": "image",
+            "imag": "image",
             "img": "image",
             "picture": "image",
         }
@@ -231,7 +229,7 @@ class WikitextParser:
         if not image_filename and data["name"]:
             # Fallback: muitos bosses não têm o campo 'image' explícito, 
             # a Wiki usa o nome da página por padrão.
-            image_filename = f"File:{data['name']}.gif"
+            image_filename = f"{data['name']}.gif"
 
         if image_filename:
             from app.models.boss import BossVisuals

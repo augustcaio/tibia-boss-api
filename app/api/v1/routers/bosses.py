@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.core.database import get_database
 from app.core.rate_limit import limiter
 from app.db.repository import BossRepository
+from app.db.system_jobs import SystemJobsRepository
 from app.models.boss import BossModel
 from app.schemas.boss import BossShortSchema
 from app.schemas.response import PaginatedResponse
@@ -58,6 +59,11 @@ async def list_bosses(
     bosses = await repository.list_bosses(skip=skip, limit=limit)
     total = await repository.count()
 
+    # Busca última atualização
+    jobs_repo = SystemJobsRepository(db)
+    status = await jobs_repo.get_scraper_status()
+    latest_update = status.last_run.isoformat() if status and status.last_run else None
+
     # Calcula número de páginas
     pages = (total + limit - 1) // limit if total > 0 else 0
 
@@ -78,6 +84,7 @@ async def list_bosses(
         page=page,
         size=len(items),
         pages=pages,
+        latest_update=latest_update,
     )
 
 
@@ -134,6 +141,11 @@ async def search_bosses(
     bosses = await repository.search_by_name(query=sanitized_query, skip=skip, limit=limit)
     total = await repository.count_by_search(query=sanitized_query)
 
+    # Busca última atualização
+    jobs_repo = SystemJobsRepository(db)
+    status = await jobs_repo.get_scraper_status()
+    latest_update = status.last_run.isoformat() if status and status.last_run else None
+
     # Calcula número de páginas
     pages = (total + limit - 1) // limit if total > 0 else 0
 
@@ -154,6 +166,7 @@ async def search_bosses(
         page=page,
         size=len(items),
         pages=pages,
+        latest_update=latest_update,
     )
 
 

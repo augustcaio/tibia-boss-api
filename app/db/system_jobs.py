@@ -68,6 +68,17 @@ class SystemJobsRepository:
         logger.info("Lock acquired para o job de scraper")
         return True
 
+    async def get_scraper_status(self) -> ScraperLockStatus | None:
+        """Retorna o estado atual do lock do scraper."""
+        doc = await self.collection.find_one({"_id": self.SCRAPER_LOCK_ID})
+        if not doc:
+            return None
+        return ScraperLockStatus(
+            status=doc.get("status", "idle"),
+            last_run=doc.get("last_run"),
+            locked_at=doc.get("locked_at"),
+        )
+
     async def release_scraper_lock(self) -> None:
         """Libera o lock do scraper, marcando o job como idle e atualizando last_run."""
         now = datetime.now(timezone.utc)

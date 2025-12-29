@@ -67,17 +67,16 @@ async def lifespan(app: FastAPI):
             raise
         print("⚠️ MongoDB indisponível. API iniciará em modo degradado (sem DB).")
 
-    # Configura job semanal de sincronização (Mongo Mutex em run_scraper_job)
+    # Configura job cíclico (12h) de sincronização (Mongo Mutex em run_scraper_job)
     if db_ready:
         scheduler.add_job(
             run_scraper_job,
-            trigger="cron",
-            day_of_week="tue",
-            hour=10,
-            timezone="UTC",
-            id="weekly_scraper_sync",
+            "cron",
+            hour="10,22",  # Roda às 10h e às 22h UTC
+            minute=0,
+            id="auto_scraper",
             replace_existing=True,
-            max_instances=1,
+            misfire_grace_time=3600,  # Se falhar, tenta por até 1h
         )
         scheduler.start()
 

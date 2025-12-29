@@ -15,6 +15,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
     page: int
     size: int
     pages: int
+    latest_update: str | None = None
 
     model_config = ConfigDict(
         json_schema_extra={

@@ -70,9 +70,7 @@ async def init_database(
                 "tlsCAFile": certifi.where(),
             }
             # Se for Mongo local (sem Atlas na URL), desativa TLS
-            if "mongodb.net" not in mongodb_url and not mongodb_url.startswith(
-                "mongodb+srv://"
-            ):
+            if "mongodb.net" not in mongodb_url and not mongodb_url.startswith("mongodb+srv://"):
                 client_options["tls"] = False
                 client_options.pop("tlsCAFile")
 

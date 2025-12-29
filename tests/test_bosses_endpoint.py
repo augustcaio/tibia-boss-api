@@ -51,9 +51,7 @@ async def client(test_database, populated_repository):
     app.dependency_overrides[get_database] = lambda: test_database
 
     # Usa AsyncClient com ASGITransport para evitar problemas de thread/loop
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://testserver"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
         yield ac
 
     app.dependency_overrides = {}
@@ -162,13 +160,13 @@ async def test_search_and_get_slug_routing(client):
     assert search_resp.status_code == 200
     search_data = search_resp.json()
     assert search_data["total"] > 0
-    
+
     # 2. Testa slug (pega o primeiro boss da listagem)
     list_resp = await client.get("/api/v1/bosses?limit=1")
     assert list_resp.status_code == 200
     boss_info = list_resp.json()["items"][0]
     slug = boss_info["slug"]
-    
+
     get_resp = await client.get(f"/api/v1/bosses/{slug}")
     assert get_resp.status_code == 200
     assert get_resp.json()["slug"] == slug

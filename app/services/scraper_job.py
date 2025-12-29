@@ -15,8 +15,8 @@ from app.main_scraper import (
     BATCH_SIZE,
     MAX_CONCURRENT_REQUESTS,
     process_and_save_batch,
-    process_boss,
     process_batch_with_images,
+    process_boss,
 )
 from app.services.image_resolver import ImageResolverService
 from app.services.tibiawiki_client import TibiaWikiClient

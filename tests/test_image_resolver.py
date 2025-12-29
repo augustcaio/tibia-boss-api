@@ -1,9 +1,10 @@
 """Testes unitários para ImageResolverService."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.services.image_resolver import ImageResolverService, PLACEHOLDER_URL
+import pytest
+
+from app.services.image_resolver import PLACEHOLDER_URL, ImageResolverService
 
 
 @pytest.fixture

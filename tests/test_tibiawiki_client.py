@@ -1,7 +1,8 @@
 """Testes unitários para TibiaWikiClient."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from app.services.tibiawiki_client import TibiaWikiClient
 

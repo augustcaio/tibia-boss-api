@@ -195,7 +195,7 @@ class BossModel(BaseModel):
                 "immunities": ["Physical", "Earth"],
                 "bosstiary": {
                     "class_name": "Nemesis",
-                    "kills_required": 5
+                    "kills_required": 5,
                 },
                 "visuals": {
                     "gif_url": "https://tibia.fandom.com/images/Morgaroth.gif",

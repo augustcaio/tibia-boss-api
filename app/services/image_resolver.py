@@ -186,15 +186,13 @@ class ImageResolverService:
         # Divide em chunks de BATCH_SIZE
         chunks = self._chunk_list(unique_filenames, BATCH_SIZE)
 
-        logger.info("Resolvendo %d imagens em %d lote(s)",
-                    len(unique_filenames), len(chunks))
+        logger.info("Resolvendo %d imagens em %d lote(s)", len(unique_filenames), len(chunks))
 
         # Processa cada chunk
         all_results: Dict[str, str] = {}
 
         for i, chunk in enumerate(chunks, 1):
-            logger.debug("Processando lote %d/%d (%d imagens)",
-                         i, len(chunks), len(chunk))
+            logger.debug("Processando lote %d/%d (%d imagens)", i, len(chunks), len(chunk))
 
             try:
                 batch_results = await self._resolve_batch(chunk)

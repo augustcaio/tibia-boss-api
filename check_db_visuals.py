@@ -9,8 +9,11 @@ load_dotenv()
 
 def check_visuals():
     # Pega a URL do ambiente (mesma lógica do app/core/config.py)
-    mongodb_url = os.environ.get("MONGODB_URL") or os.environ.get(
-        "MONGO_URL") or "mongodb://127.0.0.1:27017"
+    mongodb_url = (
+        os.environ.get("MONGODB_URL")
+        or os.environ.get("MONGO_URL")
+        or "mongodb://127.0.0.1:27017"
+    )
     database_name = "tibia_bosses"
 
     print(f"🔍 Conectando ao banco para verificação...")

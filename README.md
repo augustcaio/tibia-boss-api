@@ -3,48 +3,48 @@
   
   # Tibia Boss API
   
-  API para scraping e disponibilização de dados de Bosses do Tibia Wiki.
+  API for scraping and serving Tibia Boss data from TibiaWiki.
 </div>
 
-## Sobre o Projeto
+## About the Project
 
-Esta API extrai dados de bosses do [TibiaWiki](https://tibia.fandom.com) e os disponibiliza através de endpoints REST estruturados. O sistema conta com atualização automática e resiliência a falhas.
+This API scrapes boss data from [TibiaWiki](https://tibia.fandom.com) and provides it via structured REST endpoints. The system features automatic updates and fault resilience.
 
-## Stack Tecnológica
+## Tech Stack
 
 - **Python 3.10+** (FastAPI)
-- **MongoDB + Motor** (Banco de dados NoSQL assíncrono)
+- **MongoDB + Motor** (Async NoSQL Database)
 - **SlowAPI** (Rate Limiting)
-- **Pydantic v2** (Validação de dados)
-- **httpx** (Cliente HTTP assíncrono)
+- **Pydantic v2** (Data Validation)
+- **httpx** (Async HTTP Client)
 
 ## Quick Start (Docker)
 
-A maneira mais fácil de rodar o projeto é usando Docker Compose.
+The easiest way to run the project is using Docker Compose.
 
 ```bash
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/augustcaio/tibia-boss-api
 cd tibia-boss-api
 
-# Suba a aplicação e o banco de dados
+# Start the application and database
 docker compose up -d
 
-# A API estará disponível em:
+# The API will be available at:
 # http://localhost:8000
 ```
 
-> **Nota:** Se preferir rodar manualmente com Poetry, certifique-se de ter o MongoDB rodando e as variáveis de ambiente configuradas.
+> **Note:** If you prefer running manually with Poetry, ensure MongoDB is running and environment variables are configured.
 
-## Rotas da API
+## API Routes
 
-Documentação interativa disponível em: `http://localhost:8000/docs`
+Interactive documentation available at: `http://localhost:8000/docs`
 
-- **GET** `/` - Status da API
-- **GET** `/api/v1/bosses` - Listar todos os bosses (paginado)
-- **GET** `/api/v1/bosses/search?name=...` - Buscar boss por nome
-- **GET** `/api/v1/bosses/{slug}` - Detalhes específicos de um boss
+- **GET** `/` - API Status
+- **GET** `/api/v1/bosses` - List all bosses (paginated)
+- **GET** `/api/v1/bosses/search?name=...` - Search boss by name
+- **GET** `/api/v1/bosses/{slug}` - Specific boss details
 
-## Licença
+## License
 
 MIT

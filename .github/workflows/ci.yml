@@ -7,13 +7,40 @@ on:
     branches: [ "main", "develop", "master" ]
 
 jobs:
-  test-and-lint:
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+
+      - name: Install Linting Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install black isort
+
+      - name: Check Sorting (isort)
+        run: isort . --check-only --profile black
+
+      - name: Check Formatting (black)
+        run: black . --check
+
+  tests:
+    name: Tests & Integration
+    runs-on: ubuntu-latest
+    needs: quality # Fail fast: don't run tests if code is ugly (optional, but requested "fail fast" behavior)
+    # Actually, "fail fast" in implementation plan meant "stops early if linting fails". 
+    # Making tests depend on quality ensures this and saves resources.
     
-    # 🐳 Sobe um MongoDB temporário para os testes de integração
     services:
       mongodb:
-        image: mongo:5.0 # Versão compatível com Motor 3.1
+        image: mongo:5.0
         ports:
           - 27017:27017
         options: >-
@@ -23,43 +50,28 @@ jobs:
           --health-retries 5
 
     steps:
-    # 1. Baixa o código
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # 2. Configura Python 3.10 (Obrigatório para nosso fix de SSL)
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-        cache: 'pip' # Cacheia dependências para ser mais rápido
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
 
-    # 3. Instala dependências (Usando o requirements.txt corrigido)
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        # Instala deps extras apenas para teste (se não estiverem no requirements)
-        pip install pytest httpx pytest-asyncio black isort
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Installs prod + dev dependencies (pytest, etc.)
+          pip install -r requirements-dev.txt
 
-    # 4. Cria o arquivo .env falso (Igual fizemos no Dockerfile)
-    - name: Create Dummy .env
-      run: touch .env
+      - name: Create Dummy .env
+        run: touch .env
 
-    # 5. Linting (Verifica se o código está bonito)
-    - name: Check Formatting (Black & Isort)
-      run: |
-        # --check apenas avisa se estiver feio, não corrige
-        isort . --check-only --profile black
-        black . --check
-
-    # 6. Rodar Testes
-    - name: Run Tests
-      env:
-        # Aponta para o container de serviço do Mongo acima
-        MONGO_URL: mongodb://localhost:27017/test_db
-        ADMIN_SECRET_KEY: "teste123"
-        # Desativa validação SSL estrita para testes locais
-        TESTING: "true" 
-      run: |
-        pytest -v
+      - name: Run Tests
+        env:
+          MONGO_URL: mongodb://localhost:27017/test_db
+          ADMIN_SECRET_KEY: "teste123"
+          TESTING: "true"
+        run: |
+          pytest -v

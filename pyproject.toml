@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tibia-boss-api"
-version = "0.1.0"
+version = "1.0.0"
 description = "API para scraping e disponibilização de dados de Bosses do Tibia Wiki"
 authors = ["Tibia Boss API Team"]
 readme = "README.md"

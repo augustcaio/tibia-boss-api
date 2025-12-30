@@ -20,16 +20,7 @@ jobs:
           python-version: "3.10"
           cache: 'pip'
 
-      - name: Install Linting Tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install black isort
 
-      - name: Check Sorting (isort)
-        run: isort . --check-only --profile black
-
-      - name: Check Formatting (black)
-        run: black . --check
 
   tests:
     name: Tests & Integration

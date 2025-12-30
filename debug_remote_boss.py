@@ -1,5 +1,6 @@
 import asyncio
 import logging
+
 from app.services.tibiawiki_client import TibiaWikiClient
 from app.services.wikitext_parser import WikitextParser
 

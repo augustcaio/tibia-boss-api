@@ -1,6 +1,7 @@
-from typing import List, Optional
-from pydantic import BaseModel, ConfigDict
 import json
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict
 
 class BossVisuals(BaseModel):
     gif_url: Optional[str] = None

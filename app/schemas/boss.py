@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.boss import BossVisuals, BosstiaryStats
+from app.models.boss import BosstiaryStats, BossVisuals
 
 
 class BossShortSchema(BaseModel):

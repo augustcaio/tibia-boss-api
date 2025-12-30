@@ -208,7 +208,8 @@ class ImageResolverService:
             if filename not in all_results:
                 all_results[filename] = PLACEHOLDER_URL
                 logger.warning(
-                    "Imagem %s não foi resolvida, usando placeholder", filename)
+                    "Imagem %s não foi resolvida, usando placeholder", filename
+                )
 
         logger.info("Resolução concluída: %d URLs obtidas", len(all_results))
         return all_results

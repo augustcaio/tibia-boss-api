@@ -19,7 +19,9 @@ class BossModel(BaseModel):
 
 # Test model_dump
 boss = BossModel(name="Morgaroth", hp=100000)
-boss.visuals = BossVisuals(filename="Morgaroth.gif", gif_url="https://example.com/morgaroth.gif")
+boss.visuals = BossVisuals(
+    filename="Morgaroth.gif", gif_url="https://example.com/morgaroth.gif"
+)
 
 print("Boss dict:")
 print(json.dumps(boss.model_dump(), indent=2))

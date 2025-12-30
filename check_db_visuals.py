@@ -47,8 +47,7 @@ def check_visuals():
         # Verifica se existem bosses com visuals null ou campos internos null
         null_visuals = collection.count_documents({"visuals": None})
         null_gif_url = collection.count_documents({"visuals.gif_url": None})
-        placeholder_count = collection.count_documents(
-            {"visuals.gif_url": {"$regex": "placeholder"}})
+        placeholder_count = collection.count_documents({"visuals.gif_url": {"$regex": "placeholder"}})
 
         print(f"\n📈 Estatísticas:")
         print(f"- Bosses com visuals nulo: {null_visuals}")

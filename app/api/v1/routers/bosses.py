@@ -74,6 +74,7 @@ async def list_bosses(
             slug=boss.slug or boss.get_slug(),
             visuals=boss.visuals,
             hp=boss.hp,
+            speed=boss.speed,
             location=boss.location,
             bosstiary=boss.bosstiary,
         )
@@ -158,6 +159,7 @@ async def search_bosses(
             slug=boss.slug or boss.get_slug(),
             visuals=boss.visuals,
             hp=boss.hp,
+            speed=boss.speed,
             location=boss.location,
             bosstiary=boss.bosstiary,
         )

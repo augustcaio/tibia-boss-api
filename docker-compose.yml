@@ -19,7 +19,7 @@ services:
       - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017/tibia_bosses}
       - PORT=${PORT:-8000}
     ports:
-      - "8000:8000"
+      - "8000:10000"
     restart: unless-stopped
 
 volumes:

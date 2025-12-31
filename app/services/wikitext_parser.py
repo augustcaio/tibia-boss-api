@@ -181,6 +181,12 @@ class WikitextParser:
             "immunities": [],
             "bosstiary_class": None,
             "image_filename": None,
+            "speed": None,
+            "version": None,
+            "abilities": [],
+            "sounds": [],
+            "loot": [],
+            "resistances": {},
         }
 
         # Mapeia os campos do template para o modelo
@@ -192,8 +198,14 @@ class WikitextParser:
             "exp": "exp",
             "experience": "exp",
             "xp": "exp",
+            "speed": "speed",
+            "implemented": "version",
+            "version": "version",
             "location": "location",
             "loc": "location",
+            "abilities": "abilities",
+            "sounds": "sounds",
+            "loot": "loot",
             "walks through": "walks_through",
             "walksthrough": "walks_through",
             "walks_through": "walks_through",
@@ -213,6 +225,19 @@ class WikitextParser:
             "img": "image",
             "picture": "image",
         }
+
+        # Campos de resistência percentual (específicos)
+        resistance_fields = [
+            "physical",
+            "earth",
+            "fire",
+            "ice",
+            "energy",
+            "death",
+            "holy",
+            "drown",
+            "hpdrain",
+        ]
 
         # Extrai o nome do template (pode estar no primeiro parâmetro posicional ou no campo "name")
         if not data["name"]:
@@ -244,13 +269,16 @@ class WikitextParser:
                     # Normaliza o nome do arquivo de imagem
                     image_filename = cls._normalize_image_filename(param_value)
                     data["image_filename"] = image_filename
-                elif field_name in ("hp", "exp"):
+                elif field_name in ("hp", "exp", "speed"):
                     data[field_name] = param_value
-                elif field_name == "location":
-                    data["location"] = cls._clean_wiki_text(param_value)
+                elif field_name in ("location", "version"):
+                    data[field_name] = cls._clean_wiki_text(param_value)
                 elif field_name == "bosstiary_class":
                     data["bosstiary_class"] = param_value
                 elif field_name in (
+                    "abilities",
+                    "sounds",
+                    "loot",
                     "walks_through",
                     "elemental_weaknesses",
                     "elemental_resistances",
@@ -264,6 +292,18 @@ class WikitextParser:
                         else:
                             # Concatena se já houver valor
                             data[field_name] = f"{data[field_name]}, {clean_val}"
+
+            # Verifica resistências específicas
+            if param_name in resistance_fields:
+                param_value = str(param.value).strip()
+                if param_value:
+                    # Tenta converter para int (ex: "85" ou "120%")
+                    try:
+                        clean_pct = re.sub(r"[^\d]", "", param_value)
+                        if clean_pct:
+                            data["resistances"][param_name] = int(clean_pct)
+                    except ValueError:
+                        pass
 
         # Se o nome ainda não foi encontrado, tenta pegar do título da página
         if not data["name"] and boss_name:

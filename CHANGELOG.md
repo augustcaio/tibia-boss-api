@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.1.0] - 2025-12-30
+
+### 🚀 Release 1.1.0: Advanced Boss Data & Extraction
+
+This release marks a significant milestone in our goal to provide the most comprehensive boss data available. We've overhauled the data model and crawler to capture enterprise-grade information.
+
+### ✨ Key Features & Improvements
+
+- **Rich Data Extraction Engine**:
+    - **Loot Integration**: Full parsing and storage of boss drop tables.
+    - **Combat Mechanics**: Added fields for boss abilities and combat scripts.
+    - **Voice Lines**: Captured and stored all iconic boss sound bytes.
+    - **Metadados Completos**: Added movement speed (`speed`) and implementation version.
+
+- **Precise Elemental Mapping**:
+    - Replaced generic resistance text with a **Detailed Percentage Dictionary**.
+    - Now provides exact damage modifiers for Physical, Fire, Ice, Energy, Earth, Death, Holy, Drown, and HP Drain.
+
+- **Developer Experience & APIs**:
+    - **Expanded `BossModel`**: Updated schema with comprehensive metadata.
+    - **Fuzzy Search Enhancement**: `GET /v1/bosses/search` now returns movement speed for quick tactical comparisons.
+    - **Swagger/OpenAPI Update**: All documentation updated to reflect the version 1.1.0 schema changes.
+
+- **Reliability**:
+    - Sanitized 400k+ EXP and 340k+ HP values from Abyssador and other major bosses.
+    - Improved Wikitext cleaner to handle advanced templates and piped links.
+
+
 ## [1.0.0] - 2025-12-30
 
 ### 🚀 Release 1.0.0: Initial Production Release

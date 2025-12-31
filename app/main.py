@@ -128,7 +128,7 @@ app = FastAPI(
     
     Os dados são extraídos do [TibiaWiki](https://tibia.fandom.com) e atualizados periodicamente.
     """,
-    version="0.1.0",
+    version="1.1.0",
     contact={
         "name": "Tibia Boss API Team",
         "url": "https://github.com/tibia-boss-api",
@@ -171,7 +171,7 @@ app.include_router(admin.router, prefix="/api/v1")
 @app.get("/")
 async def root():
     """Endpoint raiz."""
-    return {"message": "Tibia Boss API", "version": "0.1.0"}
+    return {"message": "Tibia Boss API", "version": "1.1.0"}
 
 
 @app.head("/")

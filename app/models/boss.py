@@ -36,11 +36,18 @@ class BossModel(BaseModel):
     slug: Optional[str] = None
     hp: Optional[int] = None
     exp: Optional[int] = None
+    speed: Optional[int] = None
+    version: Optional[str] = None
     location: Optional[str] = None
+    abilities: List[str] = []
+    sounds: List[str] = []
+    loot: List[str] = []
     walks_through: List[str] = []
-    elemental_weaknesses: List[str] = []
-    elemental_resistances: List[str] = []
+    elemental_weaknesses: List[str] = []  # Legado (texto)
+    elemental_resistances: List[str] = [] # Legado (texto)
     immunities: List[str] = []
+    # Novas resistências percentuais
+    resistances: dict[str, int] = {} # Ex: {"physical": 100, "earth": 0, "fire": 85}
     bosstiary: Optional[BosstiaryStats] = None
     visuals: Optional[BossVisuals] = None
 
@@ -92,6 +99,18 @@ class BossModel(BaseModel):
         Mesma lógica do sanitize_hp.
         """
         return cls.sanitize_hp(v)
+
+    @field_validator("speed", mode="before")
+    @classmethod
+    def sanitize_speed(cls, v):
+        """Sanitiza o valor de Speed."""
+        return cls.sanitize_hp(v)
+
+    @field_validator("abilities", "sounds", "loot", mode="before")
+    @classmethod
+    def sanitize_list_fields(cls, v):
+        """Sanitiza listas de habilidades, sons e loot."""
+        return cls.sanitize_walks_through(v)
 
     @field_validator("walks_through", mode="before")
     @classmethod
@@ -188,11 +207,25 @@ class BossModel(BaseModel):
                 "slug": "morgaroth",
                 "hp": 100000,
                 "exp": 50000,
+                "speed": 160,
+                "version": "8.0",
                 "location": "Vampire Hell, Feyrist",
+                "abilities": ["Melee", "Fireball"],
+                "sounds": ["I WILL DEVOUR YOUR SOUL!"],
+                "loot": ["Golden Armor", "Great Fireball Rune"],
                 "walks_through": ["Fire", "Energy"],
                 "elemental_weaknesses": ["Holy", "Ice"],
                 "elemental_resistances": ["Fire"],
                 "immunities": ["Physical", "Earth"],
+                "resistances": {
+                    "physical": 100,
+                    "earth": 0,
+                    "fire": 85,
+                    "ice": 100,
+                    "energy": 100,
+                    "death": 100,
+                    "holy": 120
+                },
                 "bosstiary": {
                     "class_name": "Nemesis",
                     "kills_required": 5,
